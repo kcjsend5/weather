@@ -1,7 +1,7 @@
 # Dockerfile
 
 # jdk21 Image Start
-FROM openjdk:21-jdk-slim
+FROM openjdk:21-jdk
 
 # 인자 설정 - JAR_File
 ARG JAR_FILE=build/libs/*.jar
