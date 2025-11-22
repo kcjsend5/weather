@@ -38,3 +38,5 @@ out/
 
 ### firebase key###
 weather-515df-firebase-adminsdk-fbsvc-7237ce1c1c.json
+
+.env
