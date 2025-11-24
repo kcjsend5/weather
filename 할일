@@ -1,0 +1,49 @@
+ERD
+유저 - 다대일 - 지역
+지역 - 일대다 - 날씨
+지역 - 일대다 - 단기예보
+지역 - 일대다 - 초단기예보
+
+BaseEntity
+LocalDateTime createdAt
+LocalDateTime updatedAt
+
+User//유저
+Long id
+String uuid
+Region region
+
+Region//지역
+Long id
+String name
+int nx
+int ny
+List<User> users
+List<Weather> weather
+List<Forecast> forecasts
+List<ShortForecast> shortForecast
+
+Weather//초단기실황
+Long id
+Region region
+int baseDate
+int baseTime
+Category category
+int obsrValue
+
+ShortForecast//초단기예보
+Long id
+Region region
+int fcstDate
+int fcstTime
+Category category
+int fcstValue
+
+Forecast//단기예보
+Long id
+Region region
+int fcstDate
+int fcstTime
+Category category
+int fcstValue
+
