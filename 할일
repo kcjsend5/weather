@@ -47,5 +47,5 @@ int fcstTime
 Category category
 int fcstValue
 
-테스트
+kafka,로그인,커스텀 예외,fcm
 
