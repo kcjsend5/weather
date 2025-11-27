@@ -21,6 +21,8 @@ public class User extends BaseEntity {
     @Column(unique = true)
     private String uuid;
 
+    private String token;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id")
     private Region region;
