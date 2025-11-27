@@ -5,6 +5,6 @@ import com.app.weather.global.exception.ErrorCode;
 
 public class DuplicateUuidException extends CustomException {
     public DuplicateUuidException() {
-        super(ErrorCode.DUPLICATE_EMAIL);
+        super(ErrorCode.DUPLICATE_UUID);
     }
 }
