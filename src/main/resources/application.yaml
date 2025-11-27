@@ -29,6 +29,8 @@ spring:
   kafka:
     bootstrap-servers: localhost:29092
     producer:
+      batch-size: 16384
+      linger-ms: 5
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:

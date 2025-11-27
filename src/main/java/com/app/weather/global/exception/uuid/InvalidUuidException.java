@@ -5,6 +5,6 @@ import com.app.weather.global.exception.ErrorCode;
 
 public class InvalidUuidException extends CustomException {
     public InvalidUuidException() {
-        super(ErrorCode.INVALID_EMAIL);
+        super(ErrorCode.INVALID_UUID);
     }
 }
