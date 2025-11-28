@@ -21,7 +21,9 @@ public enum ErrorCode {
     //category
     INVALID_CATEGORY(HttpStatus.UNAUTHORIZED,"EC001","존재하지 않는 카테고리입니다"),
     //uri
-    INVALID_URI(HttpStatus.UNAUTHORIZED,"EUR001","존재하지 않는 주소입니다");
+    INVALID_URI(HttpStatus.UNAUTHORIZED,"EUR001","존재하지 않는 주소입니다"),
+    //Delivery
+    Delivery_Failed(HttpStatus.INTERNAL_SERVER_ERROR,"ED001","전송에 실패하였습니다");
 
 
     private final HttpStatus httpStatus;
