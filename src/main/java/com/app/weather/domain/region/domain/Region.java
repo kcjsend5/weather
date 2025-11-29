@@ -24,9 +24,9 @@ public class Region extends BaseEntity {
 
     private String name;
 
-    private int nx;
+    private int lat;
 
-    private int ny;
+    private int lon;
 
     @OneToMany(mappedBy = "region",cascade = CascadeType.PERSIST)
     @Builder.Default
@@ -43,4 +43,9 @@ public class Region extends BaseEntity {
     @OneToMany(mappedBy = "region",cascade = CascadeType.ALL,orphanRemoval = true)
     @Builder.Default
     private List<Weather> weathers = new ArrayList<>();
+
+    public void addUser(User user){
+        this.users.add(user);
+        user.setRegion(this);
+    }
 }

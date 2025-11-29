@@ -3,6 +3,7 @@ ERD
 지역 - 일대다 - 날씨
 지역 - 일대다 - 단기예보
 지역 - 일대다 - 초단기예보
+지역 - 일대다 - 특보
 
 BaseEntity
 LocalDateTime createdAt
@@ -47,5 +48,7 @@ int fcstTime
 Category category
 int fcstValue
 
-kafka,로그인,커스텀 예외,fcm
+특보 도메인 생성
 
+원래 지역의 중심 좌표와 비교하여 일정 이상 멀어진다면 현재 지역을 api를 통해 갱신
+동단위로 처리한다면 3-4km
