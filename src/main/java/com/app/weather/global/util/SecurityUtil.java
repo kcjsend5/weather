@@ -9,7 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class SecurityUtil {
 
-    public static String getCurrentEmail(){
+    public static String getCurrentUuid(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication == null||authentication.getName()==null){
             throw new RuntimeException("인증 정보가 없습니다.");

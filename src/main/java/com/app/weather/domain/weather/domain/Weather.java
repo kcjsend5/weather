@@ -5,6 +5,9 @@ import com.app.weather.type.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,10 +23,12 @@ public class Weather {
 
     private int baseTime;
 
-    private int obsrValue;
+    @Builder.Default
+    private List<Integer> obsrValues = new ArrayList<>();
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    private Category category;
+    private List<Category> categories = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id")
