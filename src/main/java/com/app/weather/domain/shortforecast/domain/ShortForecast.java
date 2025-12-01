@@ -5,6 +5,9 @@ import com.app.weather.type.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,10 +23,12 @@ public class ShortForecast {
 
     private int fcstTime;
 
-    private int fcstValue;
+    @Builder.Default
+    private List<Integer> fcstValue = new ArrayList<>();
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    private Category category;
+    private List<Category> category = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id")

@@ -1,8 +1,8 @@
 package com.app.weather.type;
 
 public enum Category {
-    POP("강수확률"),
-    PTY("강수형태"),
+    POP("강수 확률"),
+    PTY("강수 형태"),
     PCP("1시간 강수량"),
     REH("습도"),
     SNO("1시간 신적설"),
