@@ -1,6 +1,10 @@
 package com.app.weather.domain.region.service;
 
+import com.app.weather.domain.forecast.domain.Forecast;
 import com.app.weather.domain.region.domain.Region;
+import com.app.weather.domain.region.dto.request.LocationRequest;
+import com.app.weather.domain.region.dto.response.ForecastResponse;
+import com.app.weather.domain.region.dto.response.RegionResponse;
 import com.app.weather.domain.region.dto.response.ShortForecastResponse;
 import com.app.weather.domain.region.dto.response.WeatherResponse;
 import com.app.weather.domain.region.repository.RegionRepository;
@@ -14,7 +18,7 @@ import com.app.weather.type.Category;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
+
 import java.util.List;
 
 @Service
@@ -25,13 +29,18 @@ public class RegionService {
     private final RegionRepository repository;
     private final UserRepository userRepository;
 
-    // 메소드: 초단기 예보(6시간내) 반환, 단기 예보(일주일) 반환, 사용자 위치에 따른 지역 변경, 지역 특보 실시간 알림
+    // 메소드: 지역 특보 실시간 알림
 
-    public String getRegionName(){
+    public RegionResponse getRegionInfo(){
         Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Region region = user.getRegion();
-        return region.getName();
+
+        return RegionResponse.builder()
+                .regionName(region.getName())
+                .lat(region.getLat())
+                .lon(region.getLon())
+                .build();
     }
 
     public WeatherResponse getNowWeather(){
@@ -54,7 +63,6 @@ public class RegionService {
         Region region = user.getRegion();
         List<Weather> weathers = region.getWeathers();
 
-
         return weathers.stream().map(w->WeatherResponse.builder()
                     .baseTime(w.getBaseTime())
                     .baseDate(w.getBaseDate())
@@ -64,14 +72,42 @@ public class RegionService {
         ).toList();
     }
 
-    public List<ShortForecastResponse> getShortForecast(){
+    public List<ShortForecastResponse> getShortForecastInfo(){
         Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Region region = user.getRegion();
         List<ShortForecast> shortForecast = region.getShortForecasts();
-        return null;
+
+        return shortForecast.stream()
+                .map(s->ShortForecastResponse.builder()
+                        .fcstDate(s.getFcstDate())
+                        .fcstTime(s.getFcstTime())
+                        .fcstValues(s.getFcstValues())
+                        .categories(s.getCategories().stream().map(Category::getName).toList())
+                        .build()
+                ).toList();
     }
 
+    public List<ForecastResponse> getForecastInfo(){
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        Region region = user.getRegion();
+        List<Forecast> Forecast = region.getForecasts();
+
+        return Forecast.stream()
+                .map(s->ForecastResponse.builder()
+                        .fcstDate(s.getFcstDate())
+                        .fcstTime(s.getFcstTime())
+                        .fcstValues(s.getFcstValues())
+                        .categories(s.getCategories().stream().map(Category::getName).toList())
+                        .build()
+                ).toList();
+    }
+
+    //사용자 위치에 따른 지역 변경
+    public void updateLocation(LocationRequest request){
+
+    }
 
 
 }
