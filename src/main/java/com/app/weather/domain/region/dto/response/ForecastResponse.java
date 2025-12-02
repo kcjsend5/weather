@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ShortForecastResponse {
+public class ForecastResponse {
 
     private int fcstDate;
 
@@ -20,5 +20,4 @@ public class ShortForecastResponse {
 
     @Builder.Default
     private List<String> categories = new ArrayList<>();
-
 }

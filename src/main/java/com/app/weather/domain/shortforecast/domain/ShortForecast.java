@@ -24,11 +24,11 @@ public class ShortForecast {
     private int fcstTime;
 
     @Builder.Default
-    private List<Integer> fcstValue = new ArrayList<>();
+    private List<Integer> fcstValues = new ArrayList<>();
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    private List<Category> category = new ArrayList<>();
+    private List<Category> categories = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id")

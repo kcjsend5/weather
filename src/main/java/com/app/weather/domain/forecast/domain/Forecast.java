@@ -6,6 +6,9 @@ import com.app.weather.type.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,10 +24,12 @@ public class Forecast extends BaseEntity {
 
     private int fcstTime;
 
-    private int fcstValue;
+    @Builder.Default
+    private List<Integer> fcstValues = new ArrayList<>();
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    private Category category;
+    private List<Category> categories = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id")
