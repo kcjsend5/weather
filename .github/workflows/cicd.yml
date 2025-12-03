@@ -68,6 +68,8 @@ jobs:
           MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          GEO_KEY: ${{ secrets.GEO_KEY }}
+          GEO_SECRET_KEY: ${{ secrets.GEO_SECRET_KEY }}
         run: ./gradlew build
 
       - name: Test with Gradle
@@ -76,6 +78,8 @@ jobs:
           MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          GEO_KEY: ${{ secrets.GEO_KEY }}
+          GEO_SECRET_KEY: ${{ secrets.GEO_SECRET_KEY }}
         run: ./gradlew --info test
 
       - name: Log in to DockerHub
