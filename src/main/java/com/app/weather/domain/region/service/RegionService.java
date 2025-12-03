@@ -157,12 +157,13 @@ public class RegionService {
         GeoResponse geo = response.getBody();
         String locName = geo.getStatus().getResults().getFirst().getRegion().getArea3().getName();
         if(!repository.existsByName(locName)) {
+            //x가 경도 y가 위도
             Float x = geo.getStatus().getResults().getFirst().getRegion().getArea3().getCoords().getCenter().getX();
             Float y = geo.getStatus().getResults().getFirst().getRegion().getArea3().getCoords().getCenter().getY();
             repository.save(Region.builder()
                     .name(locName)
-                    .lat(x)
-                    .lon(y)
+                    .lat(y)
+                    .lon(x)
                     .build());
         }
         return locName;
