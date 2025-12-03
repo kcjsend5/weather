@@ -56,3 +56,7 @@ jwt:
   expiration:
     accessToken: 10800000
     refreshToken: 1209600000
+
+geo:
+  access: ${GEO_KEY}
+  secret: ${GEO_SECRET_KEY}

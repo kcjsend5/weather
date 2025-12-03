@@ -8,6 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 public class LocationRequest {
 
-    private double userLat;
-    private double userLon;
+    private Float userLat;
+    private Float userLon;
 }

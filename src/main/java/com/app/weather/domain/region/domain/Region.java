@@ -24,9 +24,9 @@ public class Region extends BaseEntity {
 
     private String name;
 
-    private double lat;
+    private Float lat;
 
-    private double lon;
+    private Float lon;
 
     @OneToMany(mappedBy = "region",cascade = CascadeType.PERSIST)
     @Builder.Default
