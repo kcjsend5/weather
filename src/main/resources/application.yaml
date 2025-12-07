@@ -60,3 +60,6 @@ jwt:
 geo:
   access: ${GEO_KEY}
   secret: ${GEO_SECRET_KEY}
+
+weather:
+  key: ${WEATHER_KEY}

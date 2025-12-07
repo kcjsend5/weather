@@ -11,12 +11,19 @@ import com.app.weather.domain.user.repository.UserRepository;
 import com.app.weather.domain.weather.domain.Weather;
 import com.app.weather.global.exception.region.RegionNotFoundException;
 import com.app.weather.global.exception.user.UserNotFoundException;
+import com.app.weather.global.fcm.FcmService;
+import com.app.weather.global.kafka.producer.EventProducerService;
 import com.app.weather.global.util.SecurityUtil;
 import com.app.weather.type.Category;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
@@ -33,6 +40,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+@CacheConfig(cacheNames = "code")
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -40,10 +48,13 @@ public class RegionService {
 
     private final RegionRepository repository;
     private final UserRepository userRepository;
+    private final EventProducerService producerService;
     @Value("${geo.access}")
     private String accessKey;
     @Value("${geo.secret}")
     private String secretKey;
+    @Value("${weather.key}")
+    private String authKey;
 
     // 메소드: 지역 특보 실시간 알림
 
@@ -140,6 +151,57 @@ public class RegionService {
             }
         }
     }
+
+    @Scheduled(cron = "0 0 0/2 * * *")
+    public void specialReport(){
+        RestClient restClient = RestClient.create();
+        ResponseEntity<String> reponse = restClient
+                .get()
+                .uri(uriBuilder-> uriBuilder.path("https://apihub.kma.go.kr/api/typ01/url/wrn_now_data_new.php")
+                        .queryParam("fe", "f")
+                        .queryParam("authKey", authKey)
+                        .build())
+                .retrieve()
+                .toEntity(String.class);
+        String result = reponse.getBody();
+        String[] list = result.split("\n");
+        for(int i = 19; i<list.length; i++){
+            String[] s = list[i].split(",");
+            String name = s[3].trim();
+            String time = s[4].trim();
+            String report = s[6].trim();
+            String level = s[7].trim();
+            String cmd = s[8].trim();
+            String end = s[9];
+
+            List<Region> regions = repository.findByUpperName(name);
+            String t = cmd.equals("예비")?"특보":"보";
+            String m = " "+report+level+t+" "+cmd+","+"발표 시각: "+time+" "+"해제예고 시점: "+end;
+            if(cacheable(name).equals(m)){
+                continue;
+            }
+            saveMessage(name, m);
+            for(Region region:regions){
+                String message = region.getName()+m;
+                producerService.sendMessage(region.getName(), message);
+            }
+
+        }
+    }
+
+    @Cacheable(key = "#region")
+    public String cacheable(String region){
+        return null;
+    }
+
+    @CachePut(key = "#region")
+    public String saveMessage(String region, String msg) {
+        return msg;
+    }
+
+    @Scheduled(cron = "0 0 1 * * *")
+    @CacheEvict(allEntries = true)
+    public void cacheEvict(){}
     
     private String getLocation(LocationRequest request) throws NoSuchAlgorithmException, InvalidKeyException {
         RestClient restClient = RestClient.create();
@@ -156,11 +218,13 @@ public class RegionService {
                 .toEntity(GeoResponse.class);
         GeoResponse geo = response.getBody();
         String locName = geo.getStatus().getResults().getFirst().getRegion().getArea3().getName();
+        String upperName = geo.getStatus().getResults().getFirst().getRegion().getArea2().getName();
         if(!repository.existsByName(locName)) {
             //x가 경도 y가 위도
             Float x = geo.getStatus().getResults().getFirst().getRegion().getArea3().getCoords().getCenter().getX();
             Float y = geo.getStatus().getResults().getFirst().getRegion().getArea3().getCoords().getCenter().getY();
             repository.save(Region.builder()
+                    .upperName(upperName)
                     .name(locName)
                     .lat(y)
                     .lon(x)

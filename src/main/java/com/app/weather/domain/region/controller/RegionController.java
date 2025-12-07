@@ -1,5 +1,6 @@
 package com.app.weather.domain.region.controller;
 
+import com.app.weather.domain.region.dto.request.LocationRequest;
 import com.app.weather.domain.region.dto.response.ForecastResponse;
 import com.app.weather.domain.region.dto.response.RegionResponse;
 import com.app.weather.domain.region.dto.response.ShortForecastResponse;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @RestController
@@ -48,6 +51,12 @@ public class RegionController {
     public ResponseEntity<List<ForecastResponse>> getForecastInfo(){
         List<ForecastResponse> responses = service.getForecastInfo();
         return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/location")
+    public ResponseEntity<Void> updateLocationInfo(LocationRequest request) throws NoSuchAlgorithmException, InvalidKeyException {
+        service.updateLocation(request);
+        return ResponseEntity.ok().build();
     }
 
 }
