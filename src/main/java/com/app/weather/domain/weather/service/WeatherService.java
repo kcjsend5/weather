@@ -88,6 +88,7 @@ public class WeatherService {
         }
     }
 
+    @Transactional
     @Scheduled(cron = "0 20 * * *")
     public void deleteWeather(){
         repository.deleteAllByCreatedAtBefore(LocalDateTime.now().minusHours(24));
