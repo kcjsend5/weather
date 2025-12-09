@@ -1,4 +1,4 @@
-package com.app.weather.global.exception.Delivery;
+package com.app.weather.global.exception.delivery;
 
 import com.app.weather.global.exception.CustomException;
 import com.app.weather.global.exception.ErrorCode;

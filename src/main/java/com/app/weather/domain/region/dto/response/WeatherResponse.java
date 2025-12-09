@@ -14,12 +14,12 @@ import java.util.List;
 @AllArgsConstructor
 public class WeatherResponse {
 
-    private int baseDate;
+    private String baseDate;
 
-    private int baseTime;
+    private String baseTime;
 
     @Builder.Default
-    private List<Integer> obsrValues = new ArrayList<>();
+    private List<Double> obsrValues = new ArrayList<>();
 
     @Builder.Default
     private List<String> categories = new ArrayList<>();
