@@ -34,7 +34,7 @@ public class WeatherService {
     private final ConvertGPS convertGPS;
     private final EventProducerService producerService;
 
-    @Scheduled(cron = "0 11 * * *")
+    @Scheduled(cron = "0 11 * * * *")
     @Transactional
     public void getWeatherInfo() {
         List<Region> regionList = regionRepository.findAll();
@@ -64,7 +64,7 @@ public class WeatherService {
         }
     }
 
-    @Scheduled(cron = "0 15 6,18 * *")
+    @Scheduled(cron = "0 15 6,18 * * *")
     public void sendWeather(){
         Map<Integer, String> ptyMap = Map.of(
                 0, "없음", 1, "비", 2, "비/눈",
@@ -89,7 +89,7 @@ public class WeatherService {
     }
 
     @Transactional
-    @Scheduled(cron = "0 20 * * *")
+    @Scheduled(cron = "0 20 * * * *")
     public void deleteWeather(){
         repository.deleteAllByCreatedAtBefore(LocalDateTime.now().minusHours(24));
     }
