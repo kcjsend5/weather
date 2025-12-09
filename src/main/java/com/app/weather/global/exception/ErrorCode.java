@@ -25,7 +25,9 @@ public enum ErrorCode {
     //delivery
     DELIVERY_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,"ED001","전송에 실패하였습니다"),
     //region
-    REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "ER001", "지역을 찾을 수 없습니다.");
+    REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "ER001", "지역을 찾을 수 없습니다."),
+    //weather
+    WEATHER_NOT_FOUND(HttpStatus.NOT_FOUND, "EW001", "현재 날씨를 찾을 수 없습니다.");
 
 
     private final HttpStatus httpStatus;

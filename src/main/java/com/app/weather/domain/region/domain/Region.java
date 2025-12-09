@@ -50,4 +50,8 @@ public class Region extends BaseEntity {
         this.users.add(user);
         user.setRegion(this);
     }
+    public void addWeather(Weather weather){
+        this.weathers.add(weather);
+        weather.setRegion(this);
+    }
 }

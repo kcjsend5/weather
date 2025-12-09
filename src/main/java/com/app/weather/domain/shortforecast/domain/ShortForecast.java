@@ -1,6 +1,7 @@
 package com.app.weather.domain.shortforecast.domain;
 
 import com.app.weather.domain.region.domain.Region;
+import com.app.weather.global.entity.BaseEntity;
 import com.app.weather.type.Category;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class ShortForecast {
+public class ShortForecast extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

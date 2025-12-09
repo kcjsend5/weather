@@ -1,6 +1,7 @@
 package com.app.weather.domain.weather.domain;
 
 import com.app.weather.domain.region.domain.Region;
+import com.app.weather.global.entity.BaseEntity;
 import com.app.weather.type.Category;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,18 +14,18 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Weather {
+public class Weather extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int baseDate;
+    private String baseDate;
 
-    private int baseTime;
+    private String baseTime;
 
     @Builder.Default
-    private List<Integer> obsrValues = new ArrayList<>();
+    private List<Double> obsrValues = new ArrayList<>();
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
@@ -33,4 +34,8 @@ public class Weather {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id")
     private Region region;
+
+    public void setRegion(Region region){
+        this.region = region;
+    }
 }
