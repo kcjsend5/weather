@@ -1,5 +1,6 @@
 package com.app.weather.domain.region.dto.response;
 
+import com.app.weather.domain.measurement.domain.Measurement;
 import com.app.weather.type.Category;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,9 +20,6 @@ public class WeatherResponse {
     private String baseTime;
 
     @Builder.Default
-    private List<Double> obsrValues = new ArrayList<>();
-
-    @Builder.Default
-    private List<String> categories = new ArrayList<>();
+    private List<MeasurementResponse> measurements = new ArrayList<>();
 
 }

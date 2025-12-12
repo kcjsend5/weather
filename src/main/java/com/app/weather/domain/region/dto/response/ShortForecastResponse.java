@@ -1,5 +1,6 @@
 package com.app.weather.domain.region.dto.response;
 
+import com.app.weather.domain.measurement.domain.Measurement;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -16,9 +17,6 @@ public class ShortForecastResponse {
     private int fcstTime;
 
     @Builder.Default
-    private List<Integer> fcstValues = new ArrayList<>();
-
-    @Builder.Default
-    private List<String> categories = new ArrayList<>();
+    private List<MeasurementResponse> measurements = new ArrayList<>();
 
 }

@@ -1,5 +1,6 @@
 package com.app.weather.domain.forecast.domain;
 
+import com.app.weather.domain.measurement.domain.Measurement;
 import com.app.weather.domain.region.domain.Region;
 import com.app.weather.global.entity.BaseEntity;
 import com.app.weather.type.Category;
@@ -24,14 +25,27 @@ public class Forecast extends BaseEntity {
 
     private int fcstTime;
 
+    @OneToMany(mappedBy = "forecast",cascade = CascadeType.ALL,orphanRemoval = true)
     @Builder.Default
-    private List<Integer> fcstValues = new ArrayList<>();
-
-    @Builder.Default
-    @Enumerated(EnumType.STRING)
-    private List<Category> categories = new ArrayList<>();
+    private List<Measurement> measurements = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id")
     private Region region;
+
+    public void setRegion(Region region){
+        this.region = region;
+    }
+
+    public void addMeasurement(Measurement measurement){
+        this.measurements.add(measurement);
+        measurement.setForecast(this);
+    }
+
+    public void setMeasurements(List<Measurement> measurements){
+        this.measurements.clear();
+        for(Measurement m:measurements){
+            addMeasurement(m);
+        }
+    }
 }
