@@ -36,14 +36,17 @@ public class Region extends BaseEntity {
 
     @OneToMany(mappedBy = "region",cascade = CascadeType.ALL,orphanRemoval = true)
     @Builder.Default
+    @OrderBy("createdAt ASC")
     private List<Forecast> forecasts = new ArrayList<>();
 
     @OneToMany(mappedBy = "region",cascade = CascadeType.ALL,orphanRemoval = true)
     @Builder.Default
+    @OrderBy("createdAt ASC")
     private List<ShortForecast> shortForecasts = new ArrayList<>();
 
     @OneToMany(mappedBy = "region",cascade = CascadeType.ALL,orphanRemoval = true)
     @Builder.Default
+    @OrderBy("createdAt ASC")
     private List<Weather> weathers = new ArrayList<>();
 
     public void addUser(User user){
@@ -53,5 +56,15 @@ public class Region extends BaseEntity {
     public void addWeather(Weather weather){
         this.weathers.add(weather);
         weather.setRegion(this);
+    }
+
+    public void addForecast(Forecast forecast){
+        this.forecasts.add(forecast);
+        forecast.setRegion(this);
+    }
+
+    public void addShortForecast(ShortForecast shortForecast){
+        this.shortForecasts.add(shortForecast);
+        shortForecast.setRegion(this);
     }
 }

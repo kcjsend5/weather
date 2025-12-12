@@ -1,6 +1,7 @@
 package com.app.weather.domain.region.service;
 
 import com.app.weather.domain.forecast.domain.Forecast;
+import com.app.weather.domain.measurement.domain.Measurement;
 import com.app.weather.domain.region.domain.Region;
 import com.app.weather.domain.region.dto.request.LocationRequest;
 import com.app.weather.domain.region.dto.response.*;
@@ -75,12 +76,18 @@ public class RegionService {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Region region = user.getRegion();
         Weather weather = region.getWeathers().getLast();
-        List<String> categories = weather.getCategories().stream().map(Category::getName).toList();
+        List<MeasurementResponse> measurements = weather
+                .getMeasurements()
+                .stream()
+                .map(m->MeasurementResponse.builder()
+                        .value(m.getValue())
+                        .category(m.getCategory())
+                        .build())
+                .toList();
         return WeatherResponse.builder()
                 .baseDate(weather.getBaseDate())
                 .baseTime(weather.getBaseTime())
-                .obsrValues(weather.getObsrValues())
-                .categories(categories)
+                .measurements(measurements)
                 .build();
     }
 
@@ -93,8 +100,11 @@ public class RegionService {
         return weathers.stream().map(w->WeatherResponse.builder()
                     .baseTime(w.getBaseTime())
                     .baseDate(w.getBaseDate())
-                    .obsrValues(w.getObsrValues())
-                    .categories(w.getCategories().stream().map(Category::getName).toList())
+                    .measurements(w.getMeasurements().stream().map(m->MeasurementResponse.builder()
+                                    .value(m.getValue())
+                                    .category(m.getCategory())
+                                    .build())
+                            .toList())
                     .build()
         ).toList();
     }
@@ -104,13 +114,15 @@ public class RegionService {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Region region = user.getRegion();
         List<ShortForecast> shortForecast = region.getShortForecasts();
-
         return shortForecast.stream()
                 .map(s->ShortForecastResponse.builder()
                         .fcstDate(s.getFcstDate())
                         .fcstTime(s.getFcstTime())
-                        .fcstValues(s.getFcstValues())
-                        .categories(s.getCategories().stream().map(Category::getName).toList())
+                        .measurements(s.getMeasurements().stream().map(m->MeasurementResponse.builder()
+                                    .value(m.getValue())
+                                    .category(m.getCategory())
+                                    .build())
+                                .toList())
                         .build()
                 ).toList();
     }
@@ -125,8 +137,11 @@ public class RegionService {
                 .map(s->ForecastResponse.builder()
                         .fcstDate(s.getFcstDate())
                         .fcstTime(s.getFcstTime())
-                        .fcstValues(s.getFcstValues())
-                        .categories(s.getCategories().stream().map(Category::getName).toList())
+                        .measurements(s.getMeasurements().stream().map(m->MeasurementResponse.builder()
+                                        .value(m.getValue())
+                                        .category(m.getCategory())
+                                        .build())
+                                .toList())
                         .build()
                 ).toList();
     }

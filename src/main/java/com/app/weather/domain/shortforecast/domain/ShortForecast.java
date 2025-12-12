@@ -1,5 +1,6 @@
 package com.app.weather.domain.shortforecast.domain;
 
+import com.app.weather.domain.measurement.domain.Measurement;
 import com.app.weather.domain.region.domain.Region;
 import com.app.weather.global.entity.BaseEntity;
 import com.app.weather.type.Category;
@@ -24,14 +25,20 @@ public class ShortForecast extends BaseEntity {
 
     private int fcstTime;
 
+    @OneToMany(mappedBy = "weather",cascade = CascadeType.ALL,orphanRemoval = true)
     @Builder.Default
-    private List<Integer> fcstValues = new ArrayList<>();
-
-    @Builder.Default
-    @Enumerated(EnumType.STRING)
-    private List<Category> categories = new ArrayList<>();
+    private List<Measurement> measurements = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id")
     private Region region;
+
+    public void setRegion(Region region){
+        this.region = region;
+    }
+
+    public void addMeasurements(Measurement measurement){
+        this.measurements.add(measurement);
+        measurement.setShortForecast(this);
+    }
 }

@@ -1,0 +1,117 @@
+package com.app.weather.domain.forecast.service;
+
+import com.app.weather.domain.forecast.domain.Forecast;
+import com.app.weather.domain.forecast.dto.ForecastResponse;
+import com.app.weather.domain.forecast.dto.Item;
+import com.app.weather.domain.forecast.dto.ItemTuple;
+import com.app.weather.domain.forecast.repository.ForecastRepository;
+import com.app.weather.domain.measurement.domain.Measurement;
+import com.app.weather.domain.region.domain.Region;
+import com.app.weather.domain.region.repository.RegionRepository;
+import com.app.weather.domain.weather.domain.Weather;
+import com.app.weather.domain.weather.dto.WeatherResponse;
+import com.app.weather.global.convert.ConvertGPS;
+import com.app.weather.global.convert.LatXLngY;
+import com.app.weather.type.Category;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClient;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class ForecastService {
+
+    private final ForecastRepository repository;
+    private final RegionRepository regionRepository;
+    private final ConvertGPS convertGPS;
+    @Value("${weather.key}")
+    private String authKey;
+
+    @Scheduled(cron = "0 11 2,5,8,11,14,17,20,23 * * *")
+    @Transactional
+    public void getForecastInfo() {
+        List<Region> regionList = regionRepository.findAll();
+        RestClient restClient = RestClient.create();
+        for (Region region : regionList) {
+            LatXLngY xy = convertGPS.convertGRID_GPS(region.getLat(), region.getLon());
+            ResponseEntity<ForecastResponse> response = restClient.get()
+                    .uri(uriBuilder->uriBuilder.path("https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getVilageFcst")
+                            .queryParam("authKey",authKey)
+                            .queryParam("base_date", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")))
+                            .queryParam("base_time", LocalDate.now().format(DateTimeFormatter.ofPattern("HHmm")))
+                            .queryParam("numOfRows", 2000)
+                            .queryParam("nx", xy.x)
+                            .queryParam("ny", xy.y)
+                            .queryParam("dataType", "JSON")
+                            .build())
+                    .retrieve()
+                    .toEntity(ForecastResponse.class);
+            ForecastResponse body = response.getBody();
+
+            List<Item> items = body.getResponse().getBody().getItems().getItem();
+
+            Map<ItemTuple,List<Item>> map = items.stream()
+                    .collect(Collectors
+                            .groupingBy(item -> new ItemTuple(item.getFcstDate(), item.getFcstTime())
+                            )
+                    );
+            for (Map.Entry<ItemTuple, List<Item>> entry : map.entrySet()) {
+                ItemTuple itemTuple = entry.getKey();
+                List<Item> itemList = entry.getValue();
+
+                int fcstDate = Integer.parseInt(itemTuple.getFcstDate());
+                int fcstTime = Integer.parseInt(itemTuple.getFcstTime());
+
+                Optional<Forecast> optional = repository.findByRegionAndFcstDateAndFcstTime(region,fcstDate, fcstTime);
+                List<Measurement> measurements = itemList.stream().map(i->Measurement.builder()
+                                .category(i.getCategory())
+                                .value(Double.valueOf(i.getFcstValue()))
+                                .build())
+                        .toList();
+                if (optional.isPresent()) {
+                    Forecast f = optional.get();
+                    if (!toMap(measurements).equals(toMap(f.getMeasurements()))){
+                        f.setMeasurements(measurements);
+                    }
+                } else {
+                    Forecast forecast = Forecast.builder()
+                            .fcstDate(fcstDate)
+                            .fcstTime(fcstTime)
+                            .measurements(measurements)
+                            .build();
+                    region.addForecast(forecast);
+                }
+            }
+        }
+    }
+
+    @Transactional
+    @Scheduled(cron = "0 40 2,5,8,11,14,17,20,23 * * *")
+    public void deleteWeather(){
+        int date = Integer.parseInt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+        int time = Integer.parseInt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmm")));
+        repository.deleteAllByFcstDateBefore(date);
+        repository.deleteAllByFcstDateAndFcstTimeBefore(date, time);
+    }
+
+    private Map<Category, Double> toMap(List<Measurement> list) {
+        return list.stream()
+                .collect(Collectors.toMap(
+                        Measurement::getCategory,
+                        Measurement::getValue
+                ));
+    }
+
+}
