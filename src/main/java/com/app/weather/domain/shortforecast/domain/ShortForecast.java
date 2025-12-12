@@ -25,7 +25,7 @@ public class ShortForecast extends BaseEntity {
 
     private int fcstTime;
 
-    @OneToMany(mappedBy = "shortforecast",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "shortForecast",cascade = CascadeType.ALL,orphanRemoval = true)
     @Builder.Default
     private List<Measurement> measurements = new ArrayList<>();
 
