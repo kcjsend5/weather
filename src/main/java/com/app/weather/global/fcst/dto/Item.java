@@ -1,4 +1,4 @@
-package com.app.weather.domain.forecast.dto;
+package com.app.weather.global.fcst.dto;
 
 import com.app.weather.type.Category;
 import lombok.*;
@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Item{
+public class Item {
     private String fcstDate;
     private String fcstTime;
     private Category category;

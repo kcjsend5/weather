@@ -1,12 +1,11 @@
-package com.app.weather.domain.forecast.service;
+package com.app.weather.domain.shortforecast.service;
 
-import com.app.weather.domain.forecast.domain.Forecast;
-import com.app.weather.domain.forecast.repository.ForecastRepository;
+
 import com.app.weather.domain.measurement.domain.Measurement;
 import com.app.weather.domain.region.domain.Region;
 import com.app.weather.domain.region.repository.RegionRepository;
-import com.app.weather.domain.weather.domain.Weather;
-import com.app.weather.domain.weather.dto.WeatherResponse;
+import com.app.weather.domain.shortforecast.domain.ShortForecast;
+import com.app.weather.domain.shortforecast.repository.ShortForecastRepository;
 import com.app.weather.global.convert.ConvertGPS;
 import com.app.weather.global.convert.LatXLngY;
 import com.app.weather.global.fcst.Fcst;
@@ -24,29 +23,30 @@ import org.springframework.web.client.RestClient;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collector;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class ForecastService {
+public class ShortForecastService {
 
-    private final ForecastRepository repository;
+    private final ShortForecastRepository repository;
     private final RegionRepository regionRepository;
     private final ConvertGPS convertGPS;
     private final Fcst fcst;
     @Value("${weather.key}")
     private String authKey;
 
-    @Scheduled(cron = "0 11 2,5,8,11,14,17,20,23 * * *")
+    @Scheduled(cron = "0 50 * * * *")
     @Transactional
-    public void getForecastInfo() {
+    public void getShortForecastInfo() {
         List<Region> regionList = regionRepository.findAll();
         RestClient restClient = RestClient.create();
         for (Region region : regionList) {
-            List<Item> items = fcst.getApi(region, restClient, "https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getVilageFcst");
+            List<Item> items = fcst.getApi(region, restClient, "https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtFcst");
 
             Map<ItemTuple,List<Item>> map = items.stream()
                     .collect(Collectors
@@ -60,31 +60,31 @@ public class ForecastService {
                 int fcstDate = Integer.parseInt(itemTuple.getFcstDate());
                 int fcstTime = Integer.parseInt(itemTuple.getFcstTime());
 
-                Optional<Forecast> optional = repository.findByRegionAndFcstDateAndFcstTime(region,fcstDate, fcstTime);
+                Optional<ShortForecast> optional = repository.findByRegionAndFcstDateAndFcstTime(region,fcstDate, fcstTime);
                 List<Measurement> measurements = itemList.stream().map(i->Measurement.builder()
                                 .category(i.getCategory())
                                 .value(Double.valueOf(i.getFcstValue()))
                                 .build())
                         .toList();
                 if (optional.isPresent()) {
-                    Forecast f = optional.get();
+                    ShortForecast f = optional.get();
                     if (!toMap(measurements).equals(toMap(f.getMeasurements()))){
                         f.setMeasurements(measurements);
                     }
                 } else {
-                    Forecast forecast = Forecast.builder()
+                    ShortForecast shortForecast = ShortForecast.builder()
                             .fcstDate(fcstDate)
                             .fcstTime(fcstTime)
                             .measurements(measurements)
                             .build();
-                    region.addForecast(forecast);
+                    region.addShortForecast(shortForecast);;
                 }
             }
         }
     }
 
     @Transactional
-    @Scheduled(cron = "0 40 2,5,8,11,14,17,20,23 * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void deleteWeather(){
         int date = Integer.parseInt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
         int time = Integer.parseInt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmm")));
