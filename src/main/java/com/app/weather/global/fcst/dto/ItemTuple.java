@@ -1,4 +1,4 @@
-package com.app.weather.domain.forecast.dto;
+package com.app.weather.global.fcst.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

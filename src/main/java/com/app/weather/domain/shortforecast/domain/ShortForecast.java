@@ -37,8 +37,15 @@ public class ShortForecast extends BaseEntity {
         this.region = region;
     }
 
-    public void addMeasurements(Measurement measurement){
+    public void addMeasurement(Measurement measurement){
         this.measurements.add(measurement);
         measurement.setShortForecast(this);
+    }
+
+    public void setMeasurements(List<Measurement> measurements) {
+        this.measurements.clear();
+        for (Measurement m : measurements) {
+            addMeasurement(m);
+        }
     }
 }

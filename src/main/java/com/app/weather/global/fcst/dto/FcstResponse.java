@@ -1,6 +1,5 @@
-package com.app.weather.domain.forecast.dto;
+package com.app.weather.global.fcst.dto;
 
-import com.app.weather.type.Category;
 import lombok.*;
 
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ForecastResponse {
+public class FcstResponse {
     private Response response;
     @Getter
     @Builder
