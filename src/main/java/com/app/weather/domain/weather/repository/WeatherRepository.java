@@ -10,5 +10,5 @@ import java.util.Optional;
 
 public interface WeatherRepository extends JpaRepository<Weather,Long> {
     void deleteAllByCreatedAtBefore(LocalDateTime dateTime);
-    Optional<Weather> findFirstByRegionOrderByCreateAtDesc(Region region);
+    Optional<Weather> findFirstByRegionOrderByCreatedAtDesc(Region region);
 }

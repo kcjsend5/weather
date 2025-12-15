@@ -78,7 +78,7 @@ public class RegionService {
         Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Region region = user.getRegion();
-        Weather weather = weatherRepository.findFirstByRegionOrderByCreateAtDesc(region).orElseThrow(WeatherNotFoundException::new);
+        Weather weather = weatherRepository.findFirstByRegionOrderByCreatedAtDesc(region).orElseThrow(WeatherNotFoundException::new);
         List<MeasurementResponse> measurements = weather
                 .getMeasurements()
                 .stream()

@@ -100,7 +100,7 @@ public class WeatherService {
     public void sendAlarm(){
         List<Region> regions = regionRepository.findAll();
         for(Region region:regions){
-            Weather weather = repository.findFirstByRegionOrderByCreateAtDesc(region).orElseThrow(WeatherNotFoundException::new);
+            Weather weather = repository.findFirstByRegionOrderByCreatedAtDesc(region).orElseThrow(WeatherNotFoundException::new);
             List<Measurement> measurements = weather.getMeasurements();
             Map<Category,Double> map = measurements.stream()
                     .collect(Collectors.toMap(
@@ -121,7 +121,7 @@ public class WeatherService {
 
         List<Region> regionList = regionRepository.findAll();
         for(Region region:regionList){
-            Weather weather = repository.findFirstByRegionOrderByCreateAtDesc(region).orElseThrow(WeatherNotFoundException::new);
+            Weather weather = repository.findFirstByRegionOrderByCreatedAtDesc(region).orElseThrow(WeatherNotFoundException::new);
             List<Measurement> measurements = weather.getMeasurements();
             Map<Category,Double> map = measurements.stream().collect(Collectors.toMap(Measurement::getCategory, Measurement::getValue));
             double ptyValue = map.getOrDefault(Category.PTY,0.0);
