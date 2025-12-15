@@ -10,8 +10,10 @@ import com.app.weather.domain.shortforecast.domain.ShortForecast;
 import com.app.weather.domain.user.domain.User;
 import com.app.weather.domain.user.repository.UserRepository;
 import com.app.weather.domain.weather.domain.Weather;
+import com.app.weather.domain.weather.repository.WeatherRepository;
 import com.app.weather.global.exception.region.RegionNotFoundException;
 import com.app.weather.global.exception.user.UserNotFoundException;
+import com.app.weather.global.exception.weather.WeatherNotFoundException;
 import com.app.weather.global.fcm.FcmService;
 import com.app.weather.global.kafka.producer.EventProducerService;
 import com.app.weather.global.util.SecurityUtil;
@@ -50,6 +52,7 @@ public class RegionService {
     private final RegionRepository repository;
     private final UserRepository userRepository;
     private final EventProducerService producerService;
+    private final WeatherRepository weatherRepository;
     @Value("${geo.access}")
     private String accessKey;
     @Value("${geo.secret}")
@@ -75,7 +78,7 @@ public class RegionService {
         Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Region region = user.getRegion();
-        Weather weather = region.getWeathers().getLast();
+        Weather weather = weatherRepository.findFirstByRegionOrderByCreatedAtDesc(region).orElseThrow(WeatherNotFoundException::new);
         List<MeasurementResponse> measurements = weather
                 .getMeasurements()
                 .stream()

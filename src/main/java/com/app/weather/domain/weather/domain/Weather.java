@@ -25,7 +25,7 @@ public class Weather extends BaseEntity {
 
     private String baseTime;
 
-    private int score;
+    private double score;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id")

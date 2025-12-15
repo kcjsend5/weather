@@ -18,6 +18,7 @@ public enum ErrorCode {
     DUPLICATE_UUID(HttpStatus.CONFLICT,"EE002","이미 존재하는 이메일입니다"),
     // token
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED,"ET001","유효하지 않는 토큰입니다"),
+    TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "ET002", "토큰을 찾을 수 없습니다."),
     //category
     INVALID_CATEGORY(HttpStatus.UNAUTHORIZED,"EC001","존재하지 않는 카테고리입니다"),
     //uri

@@ -75,5 +75,41 @@ public class UserService {
         return new TokenResponse(token.getAccessToken(),token.getRefreshToken());
     }
 
+    public void setTemperature(){
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user=repository.findById(userId).orElseThrow(UserNotFoundException::new);
+        user.setTemperature(true);
+    }
+
+    public void unsetTemperature(){
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user=repository.findById(userId).orElseThrow(UserNotFoundException::new);
+        user.setTemperature(false);
+    }
+
+    public void setRain(){
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user=repository.findById(userId).orElseThrow(UserNotFoundException::new);
+        user.setRain(true);
+    }
+
+    public void unsetRain(){
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user=repository.findById(userId).orElseThrow(UserNotFoundException::new);
+        user.setRain(false);
+    }
+
+    public void setWind(){
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user=repository.findById(userId).orElseThrow(UserNotFoundException::new);
+        user.setWind(true);
+    }
+
+    public void unsetWind(){
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user=repository.findById(userId).orElseThrow(UserNotFoundException::new);
+        user.setWind(false);
+    }
+
 
 }

@@ -3,7 +3,11 @@ package com.app.weather.global.fcm;
 import com.app.weather.domain.region.domain.Region;
 import com.app.weather.domain.region.repository.RegionRepository;
 import com.app.weather.domain.user.domain.User;
+import com.app.weather.domain.user.repository.UserRepository;
 import com.app.weather.global.exception.delivery.DeliveryFailedException;
+import com.app.weather.global.exception.region.RegionNotFoundException;
+import com.app.weather.global.exception.token.TokenNotFoundExeption;
+import com.app.weather.global.exception.user.UserNotFoundException;
 import com.app.weather.global.fcm.dto.FcmDto;
 import com.app.weather.global.fcm.dto.Message;
 import com.app.weather.global.fcm.dto.Notification;
@@ -26,11 +30,12 @@ import java.util.List;
 public class FcmServiceImpl implements FcmService{
 
     private final RegionRepository repository;
+    private final UserRepository userRepository;
 
     @Override
     public int sendMessageTo(String key, String message) throws IOException {
 
-        Region region = repository.findByName(key).orElseThrow();
+        Region region = repository.findByName(key).orElseThrow(RegionNotFoundException::new);
         List<User> users = region.getUsers();
         String URL = "<https://fcm.googleapis.com/v1/projects/weather-515df/messages:send>";
         for(User user: users){
@@ -49,6 +54,32 @@ public class FcmServiceImpl implements FcmService{
             if(!response.getStatusCode().is2xxSuccessful()){
                 throw new DeliveryFailedException();
             }
+        }
+        return 0;
+    }
+
+    @Override
+    public int sendMessageToAlarm(String key, String message) throws IOException {
+
+        User user = userRepository.findByUuid(key).orElseThrow(UserNotFoundException::new);
+        String URL = "<https://fcm.googleapis.com/v1/projects/weather-515df/messages:send>";
+        if(user.getToken()==null||user.getToken().isBlank()){
+            throw new TokenNotFoundExeption();
+        }
+        FcmDto fcmDto = makeMessage(user.getToken(),message);
+        RestClient restClient = RestClient.create();
+        ResponseEntity<Void> response = restClient
+                .post()
+                .uri(URL)
+                .contentType(MediaType.parseMediaType("application/json; charset=UTF-8"))
+                .header("Authorization",  "Bearer " + getAccessToken())
+                .body(fcmDto)
+                .retrieve()
+                .toBodilessEntity();
+        log.info(response.getStatusCode().toString());
+        if(!response.getStatusCode().is2xxSuccessful()){
+            throw new DeliveryFailedException();
+
         }
         return 0;
     }
