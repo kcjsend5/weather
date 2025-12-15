@@ -5,6 +5,6 @@ import com.app.weather.global.exception.ErrorCode;
 
 public class WeatherNotFoundException extends CustomException {
     public WeatherNotFoundException() {
-        super(ErrorCode.REGION_NOT_FOUND);
+        super(ErrorCode.WEATHER_NOT_FOUND);
     }
 }

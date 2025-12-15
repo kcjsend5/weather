@@ -8,10 +8,7 @@ import com.app.weather.domain.user.dto.response.TokenResponse;
 import com.app.weather.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,4 +40,39 @@ public class UserController {
         return ResponseEntity.ok(service.recreateToken(request));
     }
 
+    @PatchMapping("/setRain")
+    public ResponseEntity<Void> setRain(){
+        service.setRain();
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/unsetRain")
+    public ResponseEntity<Void> unsetRain(){
+        service.unsetRain();
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/setWind")
+    public ResponseEntity<Void> setWind(){
+        service.setWind();
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/unsetWind")
+    public ResponseEntity<Void> unsetWind(){
+        service.unsetWind();
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/setTemperature")
+    public ResponseEntity<Void> setTemperature(){
+        service.setTemperature();
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/unsetTemperature")
+    public ResponseEntity<Void> unsetTemperature(){
+        service.unsetTemperature();
+        return ResponseEntity.ok().build();
+    }
 }

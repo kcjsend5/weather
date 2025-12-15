@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 @Service
 public interface EventProducerService {
 
-    public void sendMessage(String key,String message);
+    void sendMessage(String key,String message);
+    void sendAlarm(String key, String message);
 
 }

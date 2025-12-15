@@ -7,4 +7,5 @@ import java.io.IOException;
 @Service
 public interface FcmService {
     int sendMessageTo(String key, String message) throws IOException;
+    int sendMessageToAlarm(String key, String message) throws IOException;
 }

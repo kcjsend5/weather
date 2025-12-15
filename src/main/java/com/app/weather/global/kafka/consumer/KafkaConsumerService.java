@@ -23,4 +23,13 @@ public class KafkaConsumerService {
             fcmService.sendMessageTo(key, message);
         }
     }
+
+    @KafkaListener(topics = "alarmTopic")
+    public void listenAlarm(ConsumerRecords<String,String> records) throws IOException {
+        for(ConsumerRecord<String,String> record:records){
+            String key = record.key();
+            String message = record.value();
+            fcmService.sendMessageToAlarm(key, message);
+        }
+    }
 }
