@@ -194,7 +194,7 @@ public class RegionService {
 
             List<Region> regions = repository.findByUpperName(name);
             String t = cmd.equals("예비")?"특보":"보";
-            String m = " "+report+level+t+" "+cmd+","+"발표 시각: "+time+" "+"해제예고 시점: "+end;
+            String m = " "+report+level+t+" "+cmd+"|"+"발표 시각: "+time+" "+"해제예고 시점: "+end;
             if(cacheable(name).equals(m)){
                 continue;
             }

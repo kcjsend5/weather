@@ -98,13 +98,13 @@ public class FcmServiceImpl implements FcmService{
     }
 
     private FcmDto makeMessage(String token,String message) throws JsonProcessingException {
-
+        String[] m = message.split("\\|");
         return FcmDto.builder()
                 .message(Message.builder()
                         .token(token)
                         .notification(Notification.builder()
-                                .title(message.split(",")[0])
-                                .body(message.split(",")[1])
+                                .title(m[0])
+                                .body(m[1])
                                 .image(null)
                                 .build())
                         .build())

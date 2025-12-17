@@ -5,6 +5,7 @@ import com.app.weather.domain.region.domain.Region;
 import com.app.weather.domain.region.repository.RegionRepository;
 import com.app.weather.domain.user.domain.User;
 import com.app.weather.domain.user.repository.UserRepository;
+import com.app.weather.domain.user.repository.UserRepositoryImpl;
 import com.app.weather.domain.weather.domain.Weather;
 import com.app.weather.domain.weather.dto.WeatherResponse;
 import com.app.weather.domain.weather.repository.WeatherRepository;
@@ -37,6 +38,7 @@ public class WeatherService {
 
     private final WeatherRepository repository;
     private final RegionRepository regionRepository;
+    private final UserRepository userRepository;
     private final ConvertGPS convertGPS;
     private final EventProducerService producerService;
 
@@ -107,10 +109,20 @@ public class WeatherService {
                             Measurement::getCategory,
                             Measurement::getValue
                     ));
-            Double temperature = map.getOrDefault(Category.T1H, 0.0);
-            Double wind = map.getOrDefault(Category.WSD, 0.0);
-            Double rain = map.getOrDefault(Category.PTY, 0.0);
-            //querydsl을 사용하여 동적 쿼리 사용하기 예) 입력된 기온이 일정 이상 혹은 이하인 경우 user의 temperature필드가 true인 유저를 찾아라
+            double temperature = map.getOrDefault(Category.T1H, 0.0);
+            double wind = map.getOrDefault(Category.WSD, 0.0);
+            double rain = map.getOrDefault(Category.PTY, 0.0);
+            double precipitation = map.getOrDefault(Category.RN1, 0.0);
+            //querydsl을 사용하여 동적 쿼리 사용하기 예) 입력된 기온이 32도 이상 혹은 -5도 이하인 경우 user의 temperature필드가 true인 유저를 찾아라
+            List<User> users = userRepository.searchAlarm(temperature, wind, rain);
+            for(User user: users){
+                StringBuilder sb = new StringBuilder();
+                String uuid = user.getUuid();
+                appendWarnings(sb,temperature,wind,rain,user);
+                sb.append("|");
+                appendDetails(sb,temperature,wind,rain,precipitation,user);
+                producerService.sendAlarm(uuid, sb.toString());
+            }
         }
 
 
@@ -129,7 +141,7 @@ public class WeatherService {
             double rehValue = map.getOrDefault(Category.REH,0.0);
             String p = ptyMap.getOrDefault((int) ptyValue, "없음");
 
-            String message = String.format("강수형태: %s, 기온: %.1f℃ 습도: %.1f%",p,t1hValue,rehValue);
+            String message = String.format("강수형태: %s | 기온: %.1f℃ 습도: %.1f%",p,t1hValue,rehValue);
             producerService.sendMessage(region.getName(), message);
         }
     }
@@ -174,5 +186,44 @@ public class WeatherService {
         }
 
         return Math.round(score*100)/100.0;
+    }
+    private void appendWithAnd(StringBuilder sb, String text) {
+        if (!sb.isEmpty()) {
+            sb.append(" 및 ");
+        }
+        sb.append(text);
+    }
+
+    private void appendWarnings(StringBuilder sb, double temperature, double wind, double rain, User user) {
+
+        if (temperature >= 33.0 && user.isTemperature()) {
+            appendWithAnd(sb, "폭염주의");
+        } else if (temperature <= -5.0 && user.isTemperature()) {
+            appendWithAnd(sb, "한파주의");
+        }
+
+        if (wind >= 8.0 && user.isWind()) {
+            appendWithAnd(sb, "강풍주의");
+        }
+
+        if (rain != 0.0 && user.isRain()) {
+            appendWithAnd(sb, ptyMap.get((int) rain) + "주의");
+        }
+    }
+
+    private void appendDetails(StringBuilder sb, double temperature, double wind,
+                               double rain, double precipitation, User user) {
+
+        if ((temperature >= 33.0 || temperature <= -5.0) && user.isTemperature()) {
+            sb.append("현재 기온:").append(temperature).append("℃ ");
+        }
+
+        if (wind >= 8.0 && user.isWind()) {
+            sb.append("현재 풍속:").append(wind).append("m/s ");
+        }
+
+        if (rain != 0.0 && user.isRain()) {
+            sb.append("현재 강수량:").append(precipitation).append("mm");
+        }
     }
 }
