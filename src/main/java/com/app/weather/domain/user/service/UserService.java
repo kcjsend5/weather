@@ -75,36 +75,42 @@ public class UserService {
         return new TokenResponse(token.getAccessToken(),token.getRefreshToken());
     }
 
+    @Transactional
     public void setTemperature(){
         Long userId = SecurityUtil.getCurrentUserId();
         User user=repository.findById(userId).orElseThrow(UserNotFoundException::new);
         user.setTemperature(true);
     }
 
+    @Transactional
     public void unsetTemperature(){
         Long userId = SecurityUtil.getCurrentUserId();
         User user=repository.findById(userId).orElseThrow(UserNotFoundException::new);
         user.setTemperature(false);
     }
 
+    @Transactional
     public void setRain(){
         Long userId = SecurityUtil.getCurrentUserId();
         User user=repository.findById(userId).orElseThrow(UserNotFoundException::new);
         user.setRain(true);
     }
 
+    @Transactional
     public void unsetRain(){
         Long userId = SecurityUtil.getCurrentUserId();
         User user=repository.findById(userId).orElseThrow(UserNotFoundException::new);
         user.setRain(false);
     }
 
+    @Transactional
     public void setWind(){
         Long userId = SecurityUtil.getCurrentUserId();
         User user=repository.findById(userId).orElseThrow(UserNotFoundException::new);
         user.setWind(true);
     }
 
+    @Transactional
     public void unsetWind(){
         Long userId = SecurityUtil.getCurrentUserId();
         User user=repository.findById(userId).orElseThrow(UserNotFoundException::new);
