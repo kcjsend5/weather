@@ -1,6 +1,5 @@
 package com.app.weather.domain.user.repository;
 
-import com.app.weather.domain.user.domain.QUser;
 import com.app.weather.domain.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
