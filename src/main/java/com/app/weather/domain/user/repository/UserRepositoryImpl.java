@@ -1,5 +1,6 @@
 package com.app.weather.domain.user.repository;
 
+import com.app.weather.domain.region.domain.Region;
 import com.app.weather.domain.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -37,6 +38,18 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
                 .select(user)
                 .from(user)
                 .where(booleanBuilder)
+                .fetch();
+    }
+
+    @Override
+    public List<User> searchRegionAlarm(Region region) {
+        BooleanExpression r = region != null?user.region.eq(region):null;
+        BooleanExpression w = user.temperature.isTrue().or(user.rain.isTrue()).or(user.wind.isTrue());
+
+        return queryFactory
+                .select(user)
+                .from(user)
+                .where(r,w)
                 .fetch();
     }
 

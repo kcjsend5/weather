@@ -18,12 +18,18 @@ import com.app.weather.global.util.SecurityUtil;
 import com.app.weather.type.Category;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -41,6 +47,7 @@ public class WeatherService {
     private final UserRepository userRepository;
     private final ConvertGPS convertGPS;
     private final EventProducerService producerService;
+    private final StringRedisTemplate redisTemplate;
 
     @Value("${weather.key}")
     private String authKey;
@@ -98,8 +105,9 @@ public class WeatherService {
     }
 
     //캐시를 사용하여 각 유저가 만약 알림을 받았고 해당 알림이 온 후 날씨가 설정한 수준 이하로 안내려가면 다시 보내지 않도록
-    @Scheduled(cron = "0 13 * * * *")
+    @Scheduled(cron = "0 15 * * * *")
     public void sendAlarm(){
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
         List<Region> regions = regionRepository.findAll();
         for(Region region:regions){
             Weather weather = repository.findFirstByRegionOrderByCreatedAtDesc(region).orElseThrow(WeatherNotFoundException::new);
@@ -116,21 +124,58 @@ public class WeatherService {
             //querydsl을 사용하여 동적 쿼리 사용하기 예) 입력된 기온이 32도 이상 혹은 -5도 이하인 경우 user의 temperature필드가 true인 유저를 찾아라
             List<User> users = userRepository.searchAlarm(temperature, wind, rain);
             for(User user: users){
-                StringBuilder sb = new StringBuilder();
                 String uuid = user.getUuid();
-                appendWarnings(sb,temperature,wind,rain,user);
-                sb.append("|");
-                appendDetails(sb,temperature,wind,rain,precipitation,user);
-                producerService.sendAlarm(uuid, sb.toString());
+                if(user.isTemperature()&&(temperature >= 33.0 ||temperature <= -5.0)){
+                    if(Boolean.TRUE.equals(ops.setIfAbsent(uuid+":Temperature","true", Duration.ofHours(24)))){
+                        sendTemperature(user, temperature);
+                    }
+                }
+                if(user.isWind()&&wind >= 8.0) {
+                    if (Boolean.TRUE.equals(ops.setIfAbsent(uuid + ":Rain", "true", Duration.ofHours(24)))) {
+                        sendRain(user, rain, precipitation);
+                    }
+                }
+                if(rain != 0.0 && user.isRain()) {
+                    if (Boolean.TRUE.equals(ops.setIfAbsent(uuid + ":Wind", "true", Duration.ofHours(24)))) {
+                        sendWind(user, wind);
+                    }
+                }
             }
         }
-
-
     }
 
-    @Scheduled(cron = "0 15 6,18 * * *")
-    public void sendWeather(){
+    @Scheduled(cron = "0 13 * * * *")
+    public void resetAlarm(){
+        List<Region> regions = regionRepository.findAll();
+        for(Region region:regions){
+            List<User> users = userRepository.searchRegionAlarm(region);
+            Weather weather = repository.findFirstByRegionOrderByCreatedAtDesc(region).orElseThrow(WeatherNotFoundException::new);
+            for(User user:users){
+                List<Measurement> measurements = weather.getMeasurements();
+                Map<Category,Double> map = measurements.stream()
+                        .collect(Collectors.toMap(
+                                Measurement::getCategory,
+                                Measurement::getValue
+                        ));
+                double temperature = map.getOrDefault(Category.T1H, 0.0);
+                double wind = map.getOrDefault(Category.WSD, 0.0);
+                double rain = map.getOrDefault(Category.PTY, 0.0);
+                String uuid = user.getUuid();
+                if(user.isTemperature()&&(temperature < 33.0&&temperature > -5.0)){
+                    redisTemplate.delete(uuid+":Temperature");
+                }
+                if((user.isRain()&&(rain == 0.0))){
+                    redisTemplate.delete(uuid+":Rain");
+                }
+                if(user.isWind()&&wind < 8.0){
+                    redisTemplate.delete(uuid+":Wind");
+                }
+            }
+        }
+    }
 
+    @Scheduled(cron = "0 16 6,18 * * *")
+    public void sendWeather(){
         List<Region> regionList = regionRepository.findAll();
         for(Region region:regionList){
             Weather weather = repository.findFirstByRegionOrderByCreatedAtDesc(region).orElseThrow(WeatherNotFoundException::new);
@@ -187,43 +232,27 @@ public class WeatherService {
 
         return Math.round(score*100)/100.0;
     }
-    private void appendWithAnd(StringBuilder sb, String text) {
-        if (!sb.isEmpty()) {
-            sb.append(" 및 ");
+
+    private void sendTemperature(User user,double temperature){
+        StringBuilder m = new StringBuilder();
+        if(temperature >= 33.0){
+            m.append("폭염주의");
+        }else {
+            m.append("한파주의");
         }
-        sb.append(text);
+        m.append("|");
+        m.append("현재 기온:").append(temperature).append("℃");
+        producerService.sendAlarm(user.getUuid(),m.toString());
     }
+    private void sendWind(User user,double wind){
+        StringBuilder m = new StringBuilder();
+        m.append("강풍주의").append("|").append("현재 풍속:").append(wind).append("m/s");
+        producerService.sendAlarm(user.getUuid(),m.toString());
 
-    private void appendWarnings(StringBuilder sb, double temperature, double wind, double rain, User user) {
-
-        if (temperature >= 33.0 && user.isTemperature()) {
-            appendWithAnd(sb, "폭염주의");
-        } else if (temperature <= -5.0 && user.isTemperature()) {
-            appendWithAnd(sb, "한파주의");
-        }
-
-        if (wind >= 8.0 && user.isWind()) {
-            appendWithAnd(sb, "강풍주의");
-        }
-
-        if (rain != 0.0 && user.isRain()) {
-            appendWithAnd(sb, ptyMap.get((int) rain) + "주의");
-        }
     }
-
-    private void appendDetails(StringBuilder sb, double temperature, double wind,
-                               double rain, double precipitation, User user) {
-
-        if ((temperature >= 33.0 || temperature <= -5.0) && user.isTemperature()) {
-            sb.append("현재 기온:").append(temperature).append("℃ ");
-        }
-
-        if (wind >= 8.0 && user.isWind()) {
-            sb.append("현재 풍속:").append(wind).append("m/s ");
-        }
-
-        if (rain != 0.0 && user.isRain()) {
-            sb.append("현재 강수량:").append(precipitation).append("mm");
-        }
+    private void sendRain(User user,double rain,double precipitation){
+        StringBuilder m = new StringBuilder();
+        m.append(ptyMap.get((int) rain)).append("주의").append("|").append("현재 강수량:").append(precipitation).append("mm");
+        producerService.sendAlarm(user.getUuid(),m.toString());
     }
 }
