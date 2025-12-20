@@ -192,7 +192,7 @@ public class RegionService {
             String cmd = s[8].trim();
             String end = s[9];
 
-            List<Region> regions = repository.findByUpperName(name);
+            List<Region> regions = repository.findByUpperNameOrAreaName(name,name);
             String t = cmd.equals("예비")?"특보":"보";
             String m = " "+report+level+t+" "+cmd+"|"+"발표 시각: "+time+" "+"해제예고 시점: "+end;
             if(cacheable(name).equals(m)){
@@ -237,11 +237,13 @@ public class RegionService {
         GeoResponse geo = response.getBody();
         String locName = geo.getStatus().getResults().getFirst().getRegion().getArea3().getName();
         String upperName = geo.getStatus().getResults().getFirst().getRegion().getArea2().getName();
+        String areaName = geo.getStatus().getResults().getFirst().getRegion().getArea1().getName();
         if(!repository.existsByName(locName)) {
             //x가 경도 y가 위도
             Float x = geo.getStatus().getResults().getFirst().getRegion().getArea3().getCoords().getCenter().getX();
             Float y = geo.getStatus().getResults().getFirst().getRegion().getArea3().getCoords().getCenter().getY();
             repository.save(Region.builder()
+                    .areaName(areaName)
                     .upperName(upperName)
                     .name(locName)
                     .lat(y)

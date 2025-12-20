@@ -39,7 +39,8 @@ jobs:
       
       - name: Create firebase key file
         run: |
-          echo "$FIREBASE_ADMIN_KEY" > weather-515df-firebase-adminsdk-fbsvc-7237ce1c1c.json
+          mkdir -p src/main/resources/firebase
+          echo "$FIREBASE_ADMIN_KEY" > src/main/resources/firebase/weather-515df-firebase-adminsdk-fbsvc-7237ce1c1c.json
         env:
           FIREBASE_ADMIN_KEY: ${{ secrets.FIREBASE_ADMIN_KEY }}
           
@@ -109,7 +110,7 @@ jobs:
       #        username: ${{ secrets.EC2_USERNAME }}
       #        key: ${{ secrets.EC2_SSH_KEY }}
       #        script: |
-      #          sudo docker
-      #          sudo docker rm -f $(sudo docker ps -qa)
-      #          sudo docker pull kcjsend5/weather:latest
-      #          sudo docker run -d -p 8080:8080 kcjsend5/weather:latest
+      #          mkdir -p /home/ubuntu/app
+      #          cd /home/ubuntu/app
+      #          docker-compose pull
+      #          docker-compose up -d
