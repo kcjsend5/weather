@@ -23,7 +23,8 @@ public class FirebaseConfig {
                 .setCredentials(GoogleCredentials
                         .fromStream(new ClassPathResource(firebaseConfigPath).getInputStream()))
                 .build();
-        return FirebaseApp.initializeApp(options);
+        firebaseApp = FirebaseApp.initializeApp(options);
+        return firebaseApp;
     }
 
     @Bean
