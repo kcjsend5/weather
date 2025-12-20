@@ -14,22 +14,19 @@ import java.io.IOException;
 @Configuration
 public class FirebaseConfig {
 
-    private FirebaseApp firebaseApp;
-/*
-    @PostConstruct
+    @Bean
     public FirebaseApp initializeFcm() throws IOException {
         String firebaseConfigPath = "firebase/weather-515df-firebase-adminsdk-fbsvc-7237ce1c1c.json";
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials
                         .fromStream(new ClassPathResource(firebaseConfigPath).getInputStream()))
                 .build();
-        firebaseApp = FirebaseApp.initializeApp(options);
-        return firebaseApp;
+        return FirebaseApp.initializeApp(options);
     }
 
     @Bean
-    public FirebaseMessaging initFirebaseMessaging(){
+    public FirebaseMessaging initFirebaseMessaging(FirebaseApp firebaseApp){
         return FirebaseMessaging.getInstance(firebaseApp);
     }
-*/
+
 }
