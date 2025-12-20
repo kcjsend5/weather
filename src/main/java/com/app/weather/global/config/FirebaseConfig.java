@@ -15,7 +15,7 @@ import java.io.IOException;
 public class FirebaseConfig {
 
     private FirebaseApp firebaseApp;
-
+/*
     @PostConstruct
     public FirebaseApp initializeFcm() throws IOException {
         String firebaseConfigPath = "firebase/weather-515df-firebase-adminsdk-fbsvc-7237ce1c1c.json";
@@ -31,4 +31,5 @@ public class FirebaseConfig {
     public FirebaseMessaging initFirebaseMessaging(){
         return FirebaseMessaging.getInstance(firebaseApp);
     }
+*/
 }
