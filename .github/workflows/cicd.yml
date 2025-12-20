@@ -39,7 +39,8 @@ jobs:
       
       - name: Create firebase key file
         run: |
-          echo "$FIREBASE_ADMIN_KEY" > weather-515df-firebase-adminsdk-fbsvc-7237ce1c1c.json
+          mkdir -p firebase
+          echo "$FIREBASE_ADMIN_KEY" > firebase/weather-515df-firebase-adminsdk-fbsvc-7237ce1c1c.json
         env:
           FIREBASE_ADMIN_KEY: ${{ secrets.FIREBASE_ADMIN_KEY }}
           
