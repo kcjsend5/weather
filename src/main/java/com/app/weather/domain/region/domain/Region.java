@@ -22,6 +22,8 @@ public class Region extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String areaName;
+
     private String upperName;
 
     private String name;

@@ -130,12 +130,12 @@ public class WeatherService {
                         sendTemperature(user, temperature);
                     }
                 }
-                if(user.isWind()&&wind >= 8.0) {
+                if(rain != 0.0 && user.isRain()) {
                     if (Boolean.TRUE.equals(ops.setIfAbsent(uuid + ":Rain", "true", Duration.ofHours(24)))) {
                         sendRain(user, rain, precipitation);
                     }
                 }
-                if(rain != 0.0 && user.isRain()) {
+                if(user.isWind()&&wind >= 8.0) {
                     if (Boolean.TRUE.equals(ops.setIfAbsent(uuid + ":Wind", "true", Duration.ofHours(24)))) {
                         sendWind(user, wind);
                     }

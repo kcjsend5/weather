@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class FcmDto {
-
-    private Message message;
-
+    private String title;
+    private String body;
+    private String image;
 }
