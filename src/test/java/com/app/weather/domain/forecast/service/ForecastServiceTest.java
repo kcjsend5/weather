@@ -27,6 +27,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -47,7 +48,7 @@ class ForecastServiceTest {
     @Transactional
     @Test
     void getForecastInfo(){
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)
@@ -69,7 +70,7 @@ class ForecastServiceTest {
 
     @Test
     void deleteForecast(){
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)

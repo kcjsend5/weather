@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -106,7 +107,7 @@ class RegionServiceTest {
     }
     @Test
     void specialReport(){
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)
@@ -128,7 +129,7 @@ class RegionServiceTest {
 
     @Test
     void getNowWeather(){
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)
@@ -152,7 +153,7 @@ class RegionServiceTest {
 
     @Test
     void getPastWeather(){
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)
@@ -176,7 +177,7 @@ class RegionServiceTest {
 
     @Test
     void getShortForecastInfo(){
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)
@@ -200,7 +201,7 @@ class RegionServiceTest {
 
     @Test
     void getForecastInfo(){
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)

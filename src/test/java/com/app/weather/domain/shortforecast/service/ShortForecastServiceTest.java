@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,7 +40,7 @@ class ShortForecastServiceTest {
     @Transactional
     @Test
     void getShortForecastInfo(){
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)
@@ -61,7 +62,7 @@ class ShortForecastServiceTest {
 
     @Test
     void deleteShortForecast(){
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)

@@ -27,6 +27,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.*;
 
 @Transactional
@@ -42,7 +44,7 @@ class UserServiceTest {
 
     @Test
     void signUp() {
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)
@@ -54,7 +56,7 @@ class UserServiceTest {
 
     @Test
     void login() {
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)
@@ -68,7 +70,7 @@ class UserServiceTest {
 
     @Test
     void recreateToken() {
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)
@@ -89,7 +91,7 @@ class UserServiceTest {
 
     @Test
     void setting() {
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)
@@ -121,7 +123,7 @@ class UserServiceTest {
 
     @Test
     void userLogout() {
-        String uuid = "master";
+        String uuid = UUID.randomUUID().toString();;
         String token = "temp";
         userService.signUp(SignRequest.builder()
                 .uuid(uuid)
