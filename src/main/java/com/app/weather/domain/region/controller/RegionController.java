@@ -8,9 +8,7 @@ import com.app.weather.domain.region.dto.response.WeatherResponse;
 import com.app.weather.domain.region.service.RegionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -53,8 +51,8 @@ public class RegionController {
         return ResponseEntity.ok(responses);
     }
 
-    @GetMapping("/location")
-    public ResponseEntity<Void> updateLocationInfo(LocationRequest request) throws NoSuchAlgorithmException, InvalidKeyException {
+    @PostMapping("/location")
+    public ResponseEntity<Void> updateLocationInfo(@RequestBody LocationRequest request){
         service.updateLocation(request);
         return ResponseEntity.ok().build();
     }

@@ -17,6 +17,7 @@ import com.app.weather.global.kafka.producer.EventProducerService;
 import com.app.weather.global.util.SecurityUtil;
 import com.app.weather.type.Category;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -65,12 +67,15 @@ public class WeatherService {
         for (Region region : regionList) {
             LatXLngY xy = convertGPS.convertGRID_GPS(region.getLat(), region.getLon());
             ResponseEntity<WeatherResponse> response = restClient.get()
-                    .uri(uriBuilder->uriBuilder.path("https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtNcst")
+                    .uri(uriBuilder->uriBuilder
+                            .scheme("https")
+                            .host("apihub.kma.go.kr")
+                            .path("/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtNcst")
                             .queryParam("authKey",authKey)
-                            .queryParam("base_date", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")))
-                            .queryParam("base_time", LocalDate.now().format(DateTimeFormatter.ofPattern("HHmm")))
-                            .queryParam("nx", xy.x)
-                            .queryParam("ny", xy.y)
+                            .queryParam("base_date", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")))
+                            .queryParam("base_time", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmm")))
+                            .queryParam("nx", (int)xy.x)
+                            .queryParam("ny", (int)xy.y)
                             .queryParam("dataType", "JSON")
                             .build())
                     .retrieve()
@@ -186,7 +191,7 @@ public class WeatherService {
             double rehValue = map.getOrDefault(Category.REH,0.0);
             String p = ptyMap.getOrDefault((int) ptyValue, "없음");
 
-            String message = String.format("강수형태: %s | 기온: %.1f℃ 습도: %.1f%",p,t1hValue,rehValue);
+            String message = String.format("강수형태: %s | 기온: %.1f℃ 습도: %.1f%%",p,t1hValue,rehValue);
             producerService.sendMessage(region.getName(), message);
         }
     }

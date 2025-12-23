@@ -28,7 +28,9 @@ public enum ErrorCode {
     //region
     REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "ER001", "지역을 찾을 수 없습니다."),
     //weather
-    WEATHER_NOT_FOUND(HttpStatus.NOT_FOUND, "EW001", "현재 날씨를 찾을 수 없습니다.");
+    WEATHER_NOT_FOUND(HttpStatus.NOT_FOUND, "EW001", "현재 날씨를 찾을 수 없습니다."),
+    //location
+    LOCATION_CRYPTO(HttpStatus.INTERNAL_SERVER_ERROR, "EL001", "위치 정보 처리 중 오류가 발생하였습니다.");
 
 
     private final HttpStatus httpStatus;

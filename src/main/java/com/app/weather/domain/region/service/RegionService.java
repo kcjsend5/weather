@@ -151,7 +151,7 @@ public class RegionService {
 
     //사용자 위치에 따른 지역 변경
     @Transactional
-    public void updateLocation(LocationRequest request) throws NoSuchAlgorithmException, InvalidKeyException {
+    public void updateLocation(LocationRequest request){
 
         Long userId = SecurityUtil.getCurrentUserId();
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
@@ -172,16 +172,17 @@ public class RegionService {
 
     @Scheduled(cron = "0 0 0/2 * * *")
     public void specialReport(){
-        RestClient restClient = RestClient.create();
-        ResponseEntity<String> reponse = restClient
+        RestClient restClient = RestClient.builder().baseUrl("https://apihub.kma.go.kr").build();
+        ResponseEntity<String> response = restClient
                 .get()
-                .uri(uriBuilder-> uriBuilder.path("https://apihub.kma.go.kr/api/typ01/url/wrn_now_data_new.php")
+                .uri(uriBuilder-> uriBuilder
+                        .path("/api/typ01/url/wrn_now_data_new.php")
                         .queryParam("fe", "f")
                         .queryParam("authKey", authKey)
                         .build())
                 .retrieve()
                 .toEntity(String.class);
-        String result = reponse.getBody();
+        String result = response.getBody();
         String[] list = result.split("\n");
         for(int i = 19; i<list.length; i++){
             String[] s = list[i].split(",");
@@ -221,27 +222,27 @@ public class RegionService {
     @CacheEvict(allEntries = true)
     public void cacheEvict(){}
     
-    private String getLocation(LocationRequest request) throws NoSuchAlgorithmException, InvalidKeyException {
+    private String getLocation(LocationRequest request){
+
         RestClient restClient = RestClient.create();
         List<String> names = new ArrayList<>(List.of("coords","output","orders"));
-        List<String> params = new ArrayList<>(List.of(request.getUserLat() + "," + request.getUserLon(),"json","admcode"));
-        URI uri = createUri("https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc",names,params);
+        List<String> params = new ArrayList<>(List.of(request.getUserLon() + "," + request.getUserLat(),"json","admcode"));
+        URI uri = createUri("https://maps.apigw.ntruss.com/map-reversegeocode/v2/gc",names,params);
         ResponseEntity<GeoResponse> response = restClient
                 .get()
                 .uri(uri)
-                .header("x-ncp-apigw-signature-v2",makeSignature("GET", uri.toString()))
-                .header("x-ncp-apigw-timestamp", String.valueOf(System.currentTimeMillis()))
-                .header("x-ncp-iam-access-key", accessKey)
+                .header("x-ncp-apigw-api-key-id", accessKey)
+                .header("x-ncp-apigw-api-key",secretKey)
                 .retrieve()
                 .toEntity(GeoResponse.class);
         GeoResponse geo = response.getBody();
-        String locName = geo.getStatus().getResults().getFirst().getRegion().getArea3().getName();
-        String upperName = geo.getStatus().getResults().getFirst().getRegion().getArea2().getName();
-        String areaName = geo.getStatus().getResults().getFirst().getRegion().getArea1().getName();
+        String locName = geo.getResults().getFirst().getRegion().getArea3().getName();
+        String upperName = geo.getResults().getFirst().getRegion().getArea2().getName();
+        String areaName = geo.getResults().getFirst().getRegion().getArea1().getName();
         if(!repository.existsByName(locName)) {
             //x가 경도 y가 위도
-            Float x = geo.getStatus().getResults().getFirst().getRegion().getArea3().getCoords().getCenter().getX();
-            Float y = geo.getStatus().getResults().getFirst().getRegion().getArea3().getCoords().getCenter().getY();
+            Float x = geo.getResults().getFirst().getRegion().getArea3().getCoords().getCenter().getX();
+            Float y = geo.getResults().getFirst().getRegion().getArea3().getCoords().getCenter().getY();
             repository.save(Region.builder()
                     .areaName(areaName)
                     .upperName(upperName)
@@ -270,31 +271,5 @@ public class RegionService {
         for(int i = 0; i<names.size();i++){builder.queryParam(names.get(i),params.get(i));}
         return builder.build().toUri();
     }
-
-    //네이버 클라우드 api 시그니처 키 생성 공통 요청 헤더 x-ncp-apigw-signature-v2 필드에 들어가는 값
-    private String makeSignature(String method,String url) throws InvalidKeyException, NoSuchAlgorithmException {
-        String space = " ";					// one space
-        String newLine = "\n";					// new line
-        String timestamp = String.valueOf(System.currentTimeMillis());// current timestamp (epoch)
-
-        String message = new StringBuilder()
-                .append(method)
-                .append(space)
-                .append(url)
-                .append(newLine)
-                .append(timestamp)
-                .append(newLine)
-                .append(accessKey)
-                .toString();
-
-        SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        Mac mac = Mac.getInstance("HmacSHA256");
-        mac.init(signingKey);
-
-        byte[] rawHmac = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
-
-        return Base64.encodeBase64String(rawHmac);
-    }
-
 
 }

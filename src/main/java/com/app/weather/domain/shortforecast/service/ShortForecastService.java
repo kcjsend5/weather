@@ -23,6 +23,7 @@ import org.springframework.web.client.RestClient;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,8 +38,6 @@ public class ShortForecastService {
     private final RegionRepository regionRepository;
     private final ConvertGPS convertGPS;
     private final Fcst fcst;
-    @Value("${weather.key}")
-    private String authKey;
 
     @Scheduled(cron = "0 50 * * * *")
     @Transactional
@@ -46,7 +45,7 @@ public class ShortForecastService {
         List<Region> regionList = regionRepository.findAll();
         RestClient restClient = RestClient.create();
         for (Region region : regionList) {
-            List<Item> items = fcst.getApi(region, restClient, "https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtFcst");
+            List<Item> items = fcst.getApi(region, restClient,"https","apihub.kma.go.kr","/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtFcst");
 
             Map<ItemTuple,List<Item>> map = items.stream()
                     .collect(Collectors
@@ -63,9 +62,11 @@ public class ShortForecastService {
                 Optional<ShortForecast> optional = repository.findByRegionAndFcstDateAndFcstTime(region,fcstDate, fcstTime);
                 List<Measurement> measurements = itemList.stream().map(i->Measurement.builder()
                                 .category(i.getCategory())
-                                .value(Double.valueOf(i.getFcstValue()))
+                                .value(!i.getFcstValue().replaceAll("[^0-9]", "").isEmpty()
+                                        ?Double.parseDouble(i.getFcstValue().replaceAll("[^0-9]", ""))
+                                        :0.0)
                                 .build())
-                        .toList();
+                        .collect(Collectors.toCollection(ArrayList::new));
                 if (optional.isPresent()) {
                     ShortForecast f = optional.get();
                     if (!toMap(measurements).equals(toMap(f.getMeasurements()))){
@@ -85,11 +86,11 @@ public class ShortForecastService {
 
     @Transactional
     @Scheduled(cron = "0 0 * * * *")
-    public void deleteWeather(){
+    public void deleteShortForecast(){
         int date = Integer.parseInt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
         int time = Integer.parseInt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmm")));
-        repository.deleteAllByFcstDateBefore(date);
-        repository.deleteAllByFcstDateAndFcstTimeBefore(date, time);
+        repository.deleteAllByFcstDateLessThan(date);
+        repository.deleteAllByFcstDateAndFcstTimeLessThan(date, time);
     }
 
     private Map<Category, Double> toMap(List<Measurement> list) {
