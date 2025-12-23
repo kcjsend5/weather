@@ -72,7 +72,7 @@ jobs:
           GEO_KEY: ${{ secrets.GEO_KEY }}
           GEO_SECRET_KEY: ${{ secrets.GEO_SECRET_KEY }}
           WEATHER_KEY: ${{ secrets.WEATHER_KEY }}
-        run: ./gradlew build
+        run: ./gradlew build -x test
 
       - name: Test with Gradle
         env:
@@ -83,7 +83,7 @@ jobs:
           GEO_KEY: ${{ secrets.GEO_KEY }}
           GEO_SECRET_KEY: ${{ secrets.GEO_SECRET_KEY }}
           WEATHER_KEY: ${{ secrets.WEATHER_KEY }}
-        run: ./gradlew --info test -Dgroups=!integration
+        run: ./gradlew --info test -Dtags=!integration
 
       - name: Log in to DockerHub
         uses: docker/login-action@v2
