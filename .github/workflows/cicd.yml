@@ -72,18 +72,7 @@ jobs:
           GEO_KEY: ${{ secrets.GEO_KEY }}
           GEO_SECRET_KEY: ${{ secrets.GEO_SECRET_KEY }}
           WEATHER_KEY: ${{ secrets.WEATHER_KEY }}
-        run: ./gradlew build -x test
-
-      - name: Test with Gradle
-        env:
-          MYSQL_URL: ${{ secrets.MYSQL_URL }}
-          MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          GEO_KEY: ${{ secrets.GEO_KEY }}
-          GEO_SECRET_KEY: ${{ secrets.GEO_SECRET_KEY }}
-          WEATHER_KEY: ${{ secrets.WEATHER_KEY }}
-        run: ./gradlew --info test -Dtags=!integration
+        run: ./gradlew build -Dtags=!integration
 
       - name: Log in to DockerHub
         uses: docker/login-action@v2
