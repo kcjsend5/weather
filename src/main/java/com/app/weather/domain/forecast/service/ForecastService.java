@@ -14,6 +14,7 @@ import com.app.weather.global.fcst.dto.Item;
 import com.app.weather.global.fcst.dto.ItemTuple;
 import com.app.weather.type.Category;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional(readOnly = true)
 public class ForecastService {
 
@@ -37,8 +39,6 @@ public class ForecastService {
     private final RegionRepository regionRepository;
     private final ConvertGPS convertGPS;
     private final Fcst fcst;
-    @Value("${weather.key}")
-    private String authKey;
 
     @Scheduled(cron = "0 11 2,5,8,11,14,17,20,23 * * *")
     @Transactional
@@ -46,7 +46,7 @@ public class ForecastService {
         List<Region> regionList = regionRepository.findAll();
         RestClient restClient = RestClient.create();
         for (Region region : regionList) {
-            List<Item> items = fcst.getApi(region, restClient, "https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getVilageFcst");
+            List<Item> items = fcst.getApi(region, restClient, "https","apihub.kma.go.kr","/api/typ02/openApi/VilageFcstInfoService_2.0/getVilageFcst");
 
             Map<ItemTuple,List<Item>> map = items.stream()
                     .collect(Collectors
@@ -56,16 +56,17 @@ public class ForecastService {
             for (Map.Entry<ItemTuple, List<Item>> entry : map.entrySet()) {
                 ItemTuple itemTuple = entry.getKey();
                 List<Item> itemList = entry.getValue();
-
                 int fcstDate = Integer.parseInt(itemTuple.getFcstDate());
                 int fcstTime = Integer.parseInt(itemTuple.getFcstTime());
 
                 Optional<Forecast> optional = repository.findByRegionAndFcstDateAndFcstTime(region,fcstDate, fcstTime);
                 List<Measurement> measurements = itemList.stream().map(i->Measurement.builder()
                                 .category(i.getCategory())
-                                .value(Double.valueOf(i.getFcstValue()))
+                                .value(!i.getFcstValue().replaceAll("[^0-9]", "").isEmpty()
+                                        ?Double.parseDouble(i.getFcstValue().replaceAll("[^0-9]", ""))
+                                        :0.0)
                                 .build())
-                        .toList();
+                        .collect(Collectors.toCollection(ArrayList::new));
                 if (optional.isPresent()) {
                     Forecast f = optional.get();
                     if (!toMap(measurements).equals(toMap(f.getMeasurements()))){
@@ -85,11 +86,11 @@ public class ForecastService {
 
     @Transactional
     @Scheduled(cron = "0 40 2,5,8,11,14,17,20,23 * * *")
-    public void deleteWeather(){
+    public void deleteForecast(){
         int date = Integer.parseInt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
         int time = Integer.parseInt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmm")));
-        repository.deleteAllByFcstDateBefore(date);
-        repository.deleteAllByFcstDateAndFcstTimeBefore(date, time);
+        repository.deleteAllByFcstDateLessThan(date);
+        repository.deleteAllByFcstDateAndFcstTimeLessThan(date, time);
     }
 
     private Map<Category, Double> toMap(List<Measurement> list) {

@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface ShortForecastRepository extends JpaRepository<ShortForecast,Long> {
     Optional<ShortForecast> findByRegionAndFcstDateAndFcstTime(Region region, int fcstDate, int fcstTime);
-    void deleteAllByFcstDateBefore(int date);
-    void deleteAllByFcstDateAndFcstTimeBefore(int date,int time);
+    void deleteAllByFcstDateLessThan(int date);
+    void deleteAllByFcstDateAndFcstTimeLessThan(int date,int time);
 }
