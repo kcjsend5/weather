@@ -8,6 +8,7 @@ import com.app.weather.domain.user.repository.UserRepository;
 import com.app.weather.domain.user.service.UserService;
 import com.app.weather.global.exception.user.UserNotFoundException;
 import com.app.weather.global.jwt.custom.CustomUserDetails;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -120,6 +121,7 @@ class WeatherServiceTest {
         weatherService.resetAlarm();
     }
 
+    @Tag("integration")
     @Test
     void sendWeather(){
         String uuid = UUID.randomUUID().toString();

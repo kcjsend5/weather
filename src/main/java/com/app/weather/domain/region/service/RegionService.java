@@ -210,7 +210,7 @@ public class RegionService {
 
     @Cacheable(key = "#region")
     public String cacheable(String region){
-        return null;
+        return "";
     }
 
     @CachePut(key = "#region")

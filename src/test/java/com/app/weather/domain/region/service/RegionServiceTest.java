@@ -17,6 +17,7 @@ import com.app.weather.domain.user.service.UserService;
 import com.app.weather.domain.weather.service.WeatherService;
 import com.app.weather.global.exception.user.UserNotFoundException;
 import com.app.weather.global.jwt.custom.CustomUserDetails;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -105,6 +106,7 @@ class RegionServiceTest {
         assertThat(regionResponse.getLat()).isNotNull();
         assertThat(regionResponse.getLon()).isNotNull();
     }
+
     @Test
     void specialReport(){
         String uuid = UUID.randomUUID().toString();;
@@ -199,6 +201,7 @@ class RegionServiceTest {
         assertThat(responses).isNotEmpty();
     }
 
+    @Tag("integration")
     @Test
     void getForecastInfo(){
         String uuid = UUID.randomUUID().toString();;
