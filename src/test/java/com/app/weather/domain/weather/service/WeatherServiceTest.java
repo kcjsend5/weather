@@ -8,6 +8,7 @@ import com.app.weather.domain.user.repository.UserRepository;
 import com.app.weather.domain.user.service.UserService;
 import com.app.weather.global.exception.user.UserNotFoundException;
 import com.app.weather.global.jwt.custom.CustomUserDetails;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
