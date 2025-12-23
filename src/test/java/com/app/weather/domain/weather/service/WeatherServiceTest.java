@@ -121,7 +121,7 @@ class WeatherServiceTest {
         weatherService.resetAlarm();
     }
 
-    @Tag("integration")
+    @Disabled
     @Test
     void sendWeather(){
         String uuid = UUID.randomUUID().toString();

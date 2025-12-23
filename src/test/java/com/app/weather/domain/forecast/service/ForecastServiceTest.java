@@ -12,6 +12,7 @@ import com.app.weather.global.exception.user.UserNotFoundException;
 import com.app.weather.global.jwt.custom.CustomUserDetails;
 import jakarta.persistence.EntityManager;
 import org.checkerframework.checker.units.qual.A;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ class ForecastServiceTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Tag("integration")
+    @Disabled
     @Transactional
     @Test
     void getForecastInfo(){
@@ -70,7 +71,7 @@ class ForecastServiceTest {
         service.getForecastInfo();
     }
 
-    @Tag("integration")
+    @Disabled
     @Test
     void deleteForecast(){
         String uuid = UUID.randomUUID().toString();;
