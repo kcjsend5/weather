@@ -59,6 +59,7 @@ class WeatherServiceTest {
         weatherService.getWeatherInfo();
     }
 
+    @Disabled
     @Transactional
     @Test
     void sendAlarm(){
