@@ -52,7 +52,7 @@ public class FcmServiceImpl implements FcmService{
                                 .build())
                         .addAllTokens(tokens)
                         .build();
-                BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(m,true);
+                BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(m,true);//배포시 false
                 if(response.getFailureCount()>0){
                     List<SendResponse> responses = response.getResponses();
                     for(int j = 0; j<responses.size();j++){
@@ -92,7 +92,7 @@ public class FcmServiceImpl implements FcmService{
         int batchSize = 500;
         for (int i = 0; i < messages.size(); i += batchSize) {
             List<Message> batch = messages.subList(i, Math.min(i + batchSize, messages.size()));
-            BatchResponse response = FirebaseMessaging.getInstance().sendEach(batch,true);
+            BatchResponse response = FirebaseMessaging.getInstance().sendEach(batch,true);//배포시 false
             log.info(response.getSuccessCount() + " messages were sent successfully in batch " + (i / batchSize + 1));
         }
         return 0;

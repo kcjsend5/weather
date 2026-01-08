@@ -39,7 +39,7 @@ dependencies {
     implementation("com.querydsl:querydsl-apt:5.0.0")
     implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
     implementation("com.querydsl:querydsl-core:5.0.0")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.16.1")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1")
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 	runtimeOnly("com.mysql:mysql-connector-j")

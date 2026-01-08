@@ -260,4 +260,53 @@ public class WeatherService {
         m.append(ptyMap.get((int) rain)).append("주의").append("|").append("현재 강수량:").append(precipitation).append("mm");
         producerService.sendAlarm(user.getUuid(),m.toString());
     }
+
+    @Transactional
+    public void fetchWeatherInfo(String day,String time) {
+        List<Region> regionList = regionRepository.findAll();
+        RestClient restClient = RestClient.create();
+        for (Region region : regionList) {
+            LatXLngY xy = convertGPS.convertGRID_GPS(region.getLat(), region.getLon());
+            ResponseEntity<WeatherResponse> response = restClient.get()
+                    .uri(uriBuilder->uriBuilder
+                            .scheme("https")
+                            .host("apihub.kma.go.kr")
+                            .path("/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtNcst")
+                            .queryParam("authKey",authKey)
+                            .queryParam("base_date", day)
+                            .queryParam("base_time", time)
+                            .queryParam("nx", (int)xy.x)
+                            .queryParam("ny", (int)xy.y)
+                            .queryParam("dataType", "JSON")
+                            .build())
+                    .retrieve()
+                    .toEntity(WeatherResponse.class);
+            WeatherResponse body = response.getBody();
+            List<Measurement> measurements = body.getResponse().getBody().getItems().getItem().stream().map(i-> Measurement.builder()
+                            .value(Double.valueOf(i.getObsrValue()))
+                            .category(i.getCategory())
+                            .build())
+                    .toList();
+            Map<Category,Double> map = measurements.stream()
+                    .collect(Collectors.toMap(
+                            Measurement::getCategory,
+                            Measurement::getValue
+                    ));
+            Double t = map.get(Category.T1H);
+            Double p = map.get(Category.RN1);
+            Double w = map.get(Category.WSD);
+            Double r = map.get(Category.REH);
+
+            Weather weather = Weather.builder()
+                    .baseDate(body.getResponse().getBody().getItems().getItem().getFirst().getBaseDate())
+                    .baseTime(body.getResponse().getBody().getItems().getItem().getFirst().getBaseTime())
+                    .score(createScore(t,p , w, r))
+                    .build();
+            for(Measurement m : measurements){
+                weather.addMeasurement(m);
+            }
+            region.addWeather(weather);
+
+        }
+    }
 }
