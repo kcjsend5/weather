@@ -6,8 +6,10 @@ import com.app.weather.global.jwt.JwtAuthenticationEntryPoint;
 import com.app.weather.global.jwt.JwtAuthenticationFilter;
 import com.app.weather.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.security.autoconfigure.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -32,7 +34,9 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private static final String[] list ={
             "/user/login",
-            "/user/signup"
+            "/user/signup",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
     };
 
     @Bean

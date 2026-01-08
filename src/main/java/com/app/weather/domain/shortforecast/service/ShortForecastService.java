@@ -45,7 +45,15 @@ public class ShortForecastService {
         List<Region> regionList = regionRepository.findAll();
         RestClient restClient = RestClient.create();
         for (Region region : regionList) {
-            List<Item> items = fcst.getApi(region, restClient,"https","apihub.kma.go.kr","/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtFcst");
+            List<Item> items = fcst.getApi(
+                    region,
+                    restClient,
+                    "https",
+                    "apihub.kma.go.kr",
+                    "/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtFcst",
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmm"))
+            );
 
             Map<ItemTuple,List<Item>> map = items.stream()
                     .collect(Collectors
@@ -101,4 +109,55 @@ public class ShortForecastService {
                 ));
     }
 
+    @Transactional
+    public void fetchShortForecastInfo(String day,String time) {
+        List<Region> regionList = regionRepository.findAll();
+        RestClient restClient = RestClient.create();
+        for (Region region : regionList) {
+            List<Item> items = fcst.getApi(
+                    region,
+                    restClient,
+                    "https",
+                    "apihub.kma.go.kr",
+                    "/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtFcst",
+                    day,
+                    time
+            );
+
+            Map<ItemTuple,List<Item>> map = items.stream()
+                    .collect(Collectors
+                            .groupingBy(item -> new ItemTuple(item.getFcstDate(), item.getFcstTime())
+                            )
+                    );
+            for (Map.Entry<ItemTuple, List<Item>> entry : map.entrySet()) {
+                ItemTuple itemTuple = entry.getKey();
+                List<Item> itemList = entry.getValue();
+
+                int fcstDate = Integer.parseInt(itemTuple.getFcstDate());
+                int fcstTime = Integer.parseInt(itemTuple.getFcstTime());
+
+                Optional<ShortForecast> optional = repository.findByRegionAndFcstDateAndFcstTime(region,fcstDate, fcstTime);
+                List<Measurement> measurements = itemList.stream().map(i->Measurement.builder()
+                                .category(i.getCategory())
+                                .value(!i.getFcstValue().replaceAll("[^0-9]", "").isEmpty()
+                                        ?Double.parseDouble(i.getFcstValue().replaceAll("[^0-9]", ""))
+                                        :0.0)
+                                .build())
+                        .collect(Collectors.toCollection(ArrayList::new));
+                if (optional.isPresent()) {
+                    ShortForecast f = optional.get();
+                    if (!toMap(measurements).equals(toMap(f.getMeasurements()))){
+                        f.setMeasurements(measurements);
+                    }
+                } else {
+                    ShortForecast shortForecast = ShortForecast.builder()
+                            .fcstDate(fcstDate)
+                            .fcstTime(fcstTime)
+                            .measurements(measurements)
+                            .build();
+                    region.addShortForecast(shortForecast);;
+                }
+            }
+        }
+    }
 }

@@ -25,7 +25,7 @@ public class Fcst {
     private final ConvertGPS convertGPS;
     @Value("${weather.key}")
     private String authKey;
-    public List<Item> getApi(Region region, RestClient restClient, String scheme,String host,String path){
+    public List<Item> getApi(Region region, RestClient restClient, String scheme,String host,String path,String day,String time){
         LatXLngY xy = convertGPS.convertGRID_GPS(region.getLat(), region.getLon());
         ResponseEntity<FcstResponse> response = restClient.get()
                 .uri(uriBuilder->uriBuilder
@@ -33,8 +33,8 @@ public class Fcst {
                         .host(host)
                         .path(path)
                         .queryParam("authKey",authKey)
-                        .queryParam("base_date", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")))
-                        .queryParam("base_time", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmm")))
+                        .queryParam("base_date", day)
+                        .queryParam("base_time", time)
                         .queryParam("numOfRows", 2000)
                         .queryParam("nx", (int)xy.x)
                         .queryParam("ny", (int)xy.y)
