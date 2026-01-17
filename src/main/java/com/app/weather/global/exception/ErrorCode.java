@@ -14,8 +14,8 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "EU001", "사용자를 찾을 수 없습니다."),
     FORBIDDEN_USER(HttpStatus.FORBIDDEN,"EU002","인가되지 않은 유저입니다"),
     // uuid
-    INVALID_UUID(HttpStatus.UNAUTHORIZED,"EE001","존재하지 않는 이메일입니다"),
-    DUPLICATE_UUID(HttpStatus.CONFLICT,"EE002","이미 존재하는 이메일입니다"),
+    INVALID_UUID(HttpStatus.UNAUTHORIZED,"EE001","존재하지 않는 uuid입니다"),
+    DUPLICATE_UUID(HttpStatus.CONFLICT,"EE002","이미 존재하는 uuid입니다"),
     // token
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED,"ET001","유효하지 않는 토큰입니다"),
     TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "ET002", "토큰을 찾을 수 없습니다."),

@@ -4,12 +4,14 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilter {
 
@@ -32,6 +34,8 @@ public class JwtAuthenticationFilter extends GenericFilter {
                 return;
             }
         }
+        log.info("Authentication before: {}",
+                SecurityContextHolder.getContext().getAuthentication());
         filterChain.doFilter(servletRequest, servletResponse);
     }
 

@@ -4,9 +4,11 @@ package com.app.weather.global.util;
 
 import com.app.weather.global.exception.token.InvalidTokenException;
 import com.app.weather.global.jwt.custom.CustomUserDetails;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+@Slf4j
 public class SecurityUtil {
 
     public static String getCurrentUuid(){
