@@ -17,7 +17,7 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         default_batch_fetch_size: 1000
     show-sql: true
-  datasource: # 배포할때 RDS로 교체하기 위해 지우기
+  datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${MYSQL_URL}
     username: ${MYSQL_USERNAME}

@@ -92,7 +92,7 @@ public class JwtTokenProvider {
         // UserDetails 객체를 만들어서 Authentication return
         // UserDetails: interface, User: UserDetails를 구현한 클래스
         UserDetails principal = userDetailsService.loadUserByUsername(claims.getSubject());
-        return new UsernamePasswordAuthenticationToken(principal, "");
+        return new UsernamePasswordAuthenticationToken(principal, "",principal.getAuthorities());
     }
 
     private Claims parseClaims(String token){

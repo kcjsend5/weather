@@ -31,11 +31,6 @@ jobs:
         uses: supercharge/redis-github-action@1.1.0
         with:
           redis-version: 7
-
-      - name: Make Docker Env
-        run: |
-            touch ./.env
-            echo "${{ secrets.DOCKER_ENV }}" > ./.env
       
       - name: Create firebase key file
         run: |
@@ -90,16 +85,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-push
     steps:
-      - name: deploy skipped
-        run: echo "deploy skipped"
-      #    - name: SSH to EC2 and deploy
-      #      uses: appleboy/ssh-action@master
-      #      with:
-      #        host: ${{ secrets.EC2_HOST }}
-      #        username: ${{ secrets.EC2_USERNAME }}
-      #        key: ${{ secrets.EC2_SSH_KEY }}
-      #        script: |
-      #          mkdir -p /home/ubuntu/app
-      #          cd /home/ubuntu/app
-      #          docker-compose pull
-      #          docker-compose up -d
+      - name: SSH to EC2 and deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST}}
+          username: ${{ secrets.EC2_USERNAME}}
+          key: ${{ secrets.EC2_SSH_KEY}}
+          script_stop: true
+          script: |
+            cd /home/ubuntu/app
+            docker compose down
+            docker compose pull 
+            docker compose up -d

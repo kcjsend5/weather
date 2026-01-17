@@ -5,8 +5,13 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.IntStream;
 
 @Configuration
 public class SwaggerConfig {
@@ -29,5 +34,18 @@ public class SwaggerConfig {
                         .version("1.0.0"))
                 .addSecurityItem(securityRequirement);
     }
+    @Bean
+    public OpenApiCustomizer customOpenAPI() {
+        List<String> tagOrder = List.of(
+                "인증", "초단기예보","단기예보","날씨실황","기능","알림설정");
 
+        return openApi -> openApi.setTags(
+                openApi.getTags().stream()
+                        .sorted(Comparator.comparingInt(tag -> IntStream.range(0, tagOrder.size())
+                                .filter(i -> tag.getName().contains(tagOrder.get(i)))
+                                .findFirst()
+                                .orElse(tagOrder.size())))
+                        .toList()
+        );
+    }
 }

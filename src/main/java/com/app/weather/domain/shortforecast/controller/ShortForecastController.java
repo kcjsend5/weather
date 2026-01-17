@@ -23,8 +23,8 @@ public class ShortForecastController {
 
     @Operation(summary = "초단기예보 수동 저장 API",description = "주기적으로 자동 저장되는 초단기예보를 수동 저장하는 API")
     @Parameters({
-            @Parameter(name = "day",description = "해당 날짜의 단기 예보 저장",example = "20260108"),
-            @Parameter(name = "time",description = "해당 시간의 단기 예보 저장(매시 45분 데이터 제공)",example = "0245")
+            @Parameter(name = "day",description = "해당 날짜의 초단기 예보 저장",example = "20260108"),
+            @Parameter(name = "time",description = "해당 시간의 초단기 예보 저장(매시 45분 데이터 제공)",example = "0245")
     })
     @PostMapping("/set")
     public ResponseEntity<Void> setShortForecast(@RequestBody ShortForecastRequest request){
