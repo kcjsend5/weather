@@ -3,6 +3,9 @@ ERD
 지역 - 일대다 - 날씨
 지역 - 일대다 - 단기예보
 지역 - 일대다 - 초단기예보
+날씨 - 일대다 - 측정값
+단기예보 - 일대다 - 측정값
+초단기예보 - 일대다 - 측정값
 
 BaseEntity
 LocalDateTime createdAt
@@ -28,7 +31,7 @@ Long id
 Region region
 int baseDate
 int baseTime
-Category category
+List<Measurement> measurements
 int obsrValue
 
 ShortForecast//초단기예보
@@ -36,7 +39,7 @@ Long id
 Region region
 int fcstDate
 int fcstTime
-Category category
+List<Measurement> measurements
 int fcstValue
 
 Forecast//단기예보
@@ -44,8 +47,15 @@ Long id
 Region region
 int fcstDate
 int fcstTime
-Category category
+List<Measurement> measurements
 int fcstValue
+
+Measurement//측정값
+Double value
+Category category
+Weather weather
+Forecast forecast
+ShortForecast shortForecast
 
 사용자 알림 설정(캐시를 사용하여 날씨 조건이 완화되지 않으면 다시 알림을 보내지 않도록)
 매 6,18시 주기적인 알림
@@ -53,3 +63,11 @@ int fcstValue
 하버사인 공식을 이용한 지역 이동시 지역으로부터 4km이상 떨어질시 사용자 지역 자동 설정
 초단기 실황, 초단기 예보, 단기 예보 반환
 현재 날씨 점수 반환.
+
+
+트러블 슈팅:
+파이어베이스 api 호출 속도 문제: firebase apk로 변경 후 배치 처리
+mysql DB 연결 문제 발생: 도커 내부에서 사용되는 mysql url 문제 127.0.0.1이 아닌 mysql을 넣어야함
+환경변수 입력 안됨:docker compose.yaml 파일의  env_file: - .env 이 있어야함
+로그인 실패 문제: 각 사용자 권한 설정 안함
+기상청 api 파싱 문제: 직접 분석하여 파싱 후 데이터 전처리
