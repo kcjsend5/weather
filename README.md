@@ -30,13 +30,13 @@
 **🚀 시스템 아키텍처**
 
 ---
-![img.png](src/main/resources/static/image/image.png)
+![img.png](src/main/resources/static/image/img.png)
 
-![img_2.png](src/main/resources/static/image/image_2.png)
+![img_2.png](src/main/resources/static/image/img_2.png)
 
-![img_3.png](src/main/resources/static/image/image_3.png)
+![img_3.png](src/main/resources/static/image/img_3.png)
 
-![img_4.png](src/main/resources/static/image/image_4.png)
+![img_4.png](src/main/resources/static/image/img_4.png)
 
 <br>
 
