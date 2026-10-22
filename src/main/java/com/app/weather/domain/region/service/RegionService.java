@@ -53,6 +53,7 @@ public class RegionService {
     private final UserRepository userRepository;
     private final EventProducerService producerService;
     private final WeatherRepository weatherRepository;
+    private final RegionCache regionCache;
     @Value("${geo.access}")
     private String accessKey;
     @Value("${geo.secret}")
@@ -196,10 +197,10 @@ public class RegionService {
             List<Region> regions = repository.findByUpperNameOrAreaName(name,name);
             String t = cmd.equals("예비")?"특보":"보";
             String m = " "+report+level+t+" "+cmd+"|"+"발표 시각: "+time+" "+"해제예고 시점: "+end;
-            if(cacheable(name).equals(m)){
+            if(regionCache.cacheable(name).equals(m)){
                 continue;
             }
-            saveMessage(name, m);
+            regionCache.saveMessage(name, m);
             for(Region region:regions){
                 String message = region.getName()+m;
                 producerService.sendMessage(region.getName(), message);
@@ -207,20 +208,6 @@ public class RegionService {
 
         }
     }
-
-    @Cacheable(key = "#region")
-    public String cacheable(String region){
-        return "";
-    }
-
-    @CachePut(key = "#region")
-    public String saveMessage(String region, String msg) {
-        return msg;
-    }
-
-    @Scheduled(cron = "0 0 1 * * *")
-    @CacheEvict(allEntries = true)
-    public void cacheEvict(){}
     
     private String getLocation(LocationRequest request){
 
