@@ -6,6 +6,6 @@ import com.app.weather.domain.user.domain.User;
 import java.util.List;
 
 public interface UserRepositoryCustom {
-    List<User> searchAlarm(Double temperature,Double wind,Double rain);
+    List<User> searchAlarm(Double temperature,Double wind,Double rain, Region region);
     List<User> searchRegionAlarm(Region region);
 }

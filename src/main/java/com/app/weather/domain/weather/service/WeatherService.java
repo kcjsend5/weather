@@ -127,7 +127,7 @@ public class WeatherService {
             double rain = map.getOrDefault(Category.PTY, 0.0);
             double precipitation = map.getOrDefault(Category.RN1, 0.0);
             //querydsl을 사용하여 동적 쿼리 사용하기 예) 입력된 기온이 32도 이상 혹은 -5도 이하인 경우 user의 temperature필드가 true인 유저를 찾아라
-            List<User> users = userRepository.searchAlarm(temperature, wind, rain);
+            List<User> users = userRepository.searchAlarm(temperature, wind, rain, region);
             for(User user: users){
                 String uuid = user.getUuid();
                 if(user.isTemperature()&&(temperature >= 33.0 ||temperature <= -5.0)){

@@ -1,6 +1,7 @@
 package com.app.weather.domain.user.repository;
 
 import com.app.weather.domain.region.domain.Region;
+import com.app.weather.domain.user.domain.QUser;
 import com.app.weather.domain.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -16,7 +17,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<User> searchAlarm(Double temperature, Double wind, Double rain) {
+    public List<User> searchAlarm(Double temperature, Double wind, Double rain, Region region) {
 
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
@@ -30,6 +31,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
         if(rainExpr != null)
             booleanBuilder.or(rainExpr);
 
+        BooleanExpression r = region != null?user.region.eq(region):null;
+
         if(!booleanBuilder.hasValue()){
             return List.of();
         }
@@ -37,7 +40,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
         return queryFactory
                 .select(user)
                 .from(user)
-                .where(booleanBuilder)
+                .where(booleanBuilder,r)
                 .fetch();
     }
 
